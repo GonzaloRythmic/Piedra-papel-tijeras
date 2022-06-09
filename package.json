@@ -1,0 +1,46 @@
+{
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^17.0.36",
+    "@vaadin/router": "^1.7.4",
+    "bulma": "^0.9.4",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "firebase": "^9.8.2",
+    "firebase-admin": "^10.2.0",
+    "nanoid": "^3.3.4",
+    "nodemon": "^2.0.16",
+    "parcel": "^2.6.0"
+  },
+  "scripts": {
+    "dev": "nodemon --watch ./index.ts --exec ts-node dev.ts",
+    "dev:front": "parcel serve ./Cliente/index.html",
+    "build:front": "parcel build ./Cliente/index.html",
+    "build:api": "tsc ./Server/index.ts",
+    "build": "yarn build:front && yarn build:api",
+    "start": "yarn build:api && node ./Server/index.js",
+    "test": "ava"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "constants-browserify": "^1.0.0",
+    "crypto-browserify": "^3.12.0",
+    "events": "^3.3.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "querystring-es3": "^0.2.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.0",
+    "util": "^0.12.4"
+  },
+  "author": "GonzaloRythmic <gonzalocortez1991@hotmail.com>",
+  
+  "repository": "https://github.com/GonzaloRythmic/Piedra-Papel-Tijera-App.git"
+}
