@@ -22,7 +22,8 @@ var firebaseConfig = {
     measurementId: "G-MEASUREMENT_ID",
   };
 
-const firestoreAdmin = getFirestore(admin);
-const rtdbAdmin = getDatabase(admin);
+  const firestoreAdmin = admin.firestore();
+  const rtdbAdmin = admin.database();
+  
 
 export {firestoreAdmin, rtdbAdmin};

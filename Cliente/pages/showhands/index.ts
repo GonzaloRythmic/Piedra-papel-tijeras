@@ -8,8 +8,8 @@ class ShowHandsPage extends HTMLElement {
         const sisors = require("url:../../images/tijera. jpg")
         const paper = require("url:../../images/papel. jpg")
         const vs = require ("url:../../images/vs(3).png");
-        const computer = state.data.currentGame.computerPlay;
-        const my = state.data.currentGame.myPlay;
+        const computer = state.data.currentGame.player2_move;
+        const my = state.data.currentGame.player1_move;
 
         //Verificamos jugadad de la máquina. 
         const imgElMachine = this.querySelector("img")as HTMLImageElement;

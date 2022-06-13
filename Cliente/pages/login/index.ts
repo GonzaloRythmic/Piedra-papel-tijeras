@@ -1,5 +1,5 @@
 import {Router} from '@vaadin/router';
-import { nanoid } from 'nanoid'
+import { state } from '../../state';
 
 class Login extends HTMLElement {
     connectedCallback(){
@@ -7,8 +7,9 @@ class Login extends HTMLElement {
         this.querySelector(".button-start").addEventListener("click",(e)=>{
           e.preventDefault;
           const gamer_1_name = document.getElementById("input-name") as any;
-          
-          Router.go('/instructions')
+          state.setName(gamer_1_name.value);
+          state.createUser("");
+          Router.go('/id_code')
         })
     }
     render(){

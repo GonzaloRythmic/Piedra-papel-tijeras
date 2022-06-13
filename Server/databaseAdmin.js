@@ -2,8 +2,6 @@
 exports.__esModule = true;
 exports.rtdbAdmin = exports.firestoreAdmin = void 0;
 var admin = require("firebase-admin");
-var lite_1 = require("firebase/firestore/lite");
-var database_1 = require("firebase/database");
 var serviceAccount = require("../serviceAccountKey.json");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -21,7 +19,7 @@ var firebaseConfig = {
     // For Firebase JavaScript SDK v7.20.0 and later, `measurementId` is an optional field
     measurementId: "G-MEASUREMENT_ID"
 };
-var firestoreAdmin = (0, lite_1.getFirestore)(admin);
+var firestoreAdmin = admin.firestore();
 exports.firestoreAdmin = firestoreAdmin;
-var rtdbAdmin = (0, database_1.getDatabase)(admin);
+var rtdbAdmin = admin.database();
 exports.rtdbAdmin = rtdbAdmin;

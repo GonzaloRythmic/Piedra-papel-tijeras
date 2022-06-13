@@ -9,5 +9,6 @@ router.setRoutes([
   {path: "/showhands", component: "showhands-page"},
   {path:"/results", component: "result-page"},
   {path:"/loginId", component: "loginId-page"},
-  {path:"/login", component : "login-page"}
+  {path:"/login", component : "login-page"},
+  {path:"/id_code", component: "id-code-page"}
 ]);
