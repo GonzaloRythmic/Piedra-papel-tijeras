@@ -1,7 +1,6 @@
 "use strict";
 exports.__esModule = true;
 var express = require("express");
-var state_1 = require("../Cliente/state");
 var databaseAdmin_1 = require("./databaseAdmin");
 var cors = require("cors");
 var uuid_1 = require("uuid");
@@ -22,13 +21,6 @@ app.post("/signup", function (req, res) {
             userId: newUserRef.id,
             owner: true
         });
-        state_1.state.setName(userName);
-        console.log("UserId:", newUserRef.id);
-        var cs = state_1.state.getState();
-        cs.currentGame.gamer_1_longId = newUserRef.id;
-        var newState = state_1.state.setState(cs);
-        console.log(newState);
-        // return console.log("Soy el state y ahora tengo esto",newState);
     });
 });
 ;
@@ -52,7 +44,7 @@ app.post("/auth", function (req, res) {
 app.post("/room", function (req, res) {
     var userId = req.body.userId;
     var userName = req.body.userName;
-    userCollectionRef.doc(userId.toString()).get().then(function (doc) {
+    userCollectionRef.doc(userId).get().then(function (doc) {
         if (doc.exists) {
             var newRoomRef = databaseAdmin_1.rtdbAdmin.ref("Rooms/" + (0, uuid_1.v4)());
             // const roomLongId = newRoomRef.key;

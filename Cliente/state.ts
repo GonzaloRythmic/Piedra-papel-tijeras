@@ -68,7 +68,7 @@ const state = {
   },
 
   createUser(userName) {
-      return fetch(API_BASE_URL + "/signup" , {
+        return fetch(API_BASE_URL + "/signup" , {
         method: "POST",
         mode: "cors",
         headers: {
@@ -82,13 +82,16 @@ const state = {
           return data.json();
         })
         .then(res => {
-          this.getState().currentGame.gamer_1_firestoreId = res.userId;
-          const newState = this.getState();
-          const state = this.setState(newState);
+          const cs = state.getState();
+          const newUserId = res.userId;
+          cs.currentGame.gamer_1_firestoreId = newUserId;
+          state.setState(cs);
+          console.log("Asi quedo yo el State", cs.currentGame);
         });
   },
 
-  createRoom(userId, userName){ 
+  createRoom(userName, userId){ 
+    console.log(userName);
     return fetch (API_BASE_URL + "/room", {
       method: "POST",
       mode: "cors",
@@ -105,19 +108,6 @@ const state = {
       console.log("Hola soy el res", res)
     })
   },
-
-  // createNewRoom(userId, user){
-  //   return fetch("/room", {
-  //     method: "post",
-  //     headers: {
-  //       "content-type": "application/json"
-  //     },
-  //     body: JSON.stringify({
-  //       userId: userId,
-  //       owner: user
-  //     })
-  //     })
-  // },
 
   suscribe(callback: (any) => any) {
     this.listeners.push(callback);

@@ -10,9 +10,9 @@ class Login extends HTMLElement {
           const userName = gamer_1_name.value
           state.setName(userName);
           state.createUser(userName);
-          const userid = state.getState().currentGame.gamer_1_firestoreId;
-          state.createRoom(userName,userid )
           const cs = state.getState();
+          const newUserId = cs.currentGame.gamer_1_firestoreId;
+          console.log("Soy el cs del cliente",newUserId )
           Router.go('/id_code')
         })
     }

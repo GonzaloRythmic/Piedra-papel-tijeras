@@ -69,7 +69,6 @@ var state = {
         });
     },
     createUser: function (userName) {
-        var _this = this;
         return fetch(API_BASE_URL + "/signup", {
             method: "POST",
             mode: "cors",
@@ -85,12 +84,15 @@ var state = {
             return data.json();
         })
             .then(function (res) {
-            _this.getState().currentGame.gamer_1_firestoreId = res.userId;
-            var newState = _this.getState();
-            var state = _this.setState(newState);
+            var cs = state.getState();
+            var newUserId = res.userId;
+            cs.currentGame.gamer_1_firestoreId = newUserId;
+            state.setState(cs);
+            console.log("Asi quedo yo el State", cs);
         });
     },
-    createRoom: function (userId, userName) {
+    createRoom: function (userName, userId) {
+        console.log(userName);
         return fetch(API_BASE_URL + "/room", {
             method: "POST",
             mode: "cors",
@@ -107,18 +109,6 @@ var state = {
             console.log("Hola soy el res", res);
         });
     },
-    // createNewRoom(userId, user){
-    //   return fetch("/room", {
-    //     method: "post",
-    //     headers: {
-    //       "content-type": "application/json"
-    //     },
-    //     body: JSON.stringify({
-    //       userId: userId,
-    //       owner: user
-    //     })
-    //     })
-    // },
     suscribe: function (callback) {
         this.listeners.push(callback);
     },

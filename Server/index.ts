@@ -32,13 +32,6 @@ const roomsCollectionRef = firestoreAdmin.collection("Rooms");
             userId: newUserRef.id,
             owner: true,
           });
-          state.setName(userName);
-          console.log("UserId:",newUserRef.id);
-          const cs = state.getState();
-          cs.currentGame.gamer_1_longId = newUserRef.id;
-          const newState = state.setState(cs);
-          console.log(newState);
-          // return console.log("Soy el state y ahora tengo esto",newState);
         });
     });
  ;
@@ -64,7 +57,7 @@ const roomsCollectionRef = firestoreAdmin.collection("Rooms");
   app.post("/room", (req, res) => {
     const { userId } = req.body;
     const {userName} = req.body;
-    userCollectionRef.doc(userId.toString()).get().then((doc) => {
+    userCollectionRef.doc(userId).get().then((doc) => {
       if (doc.exists) {
         const newRoomRef = rtdbAdmin.ref("Rooms/" + uuidv4());
         // const roomLongId = newRoomRef.key;

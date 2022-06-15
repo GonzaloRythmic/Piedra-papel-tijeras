@@ -23,7 +23,7 @@ var firebaseConfig = {
   };
 
   const firestoreAdmin = admin.firestore();
-  firestoreAdmin.settings({ ignoreUndefinedProperties: true })
+  
   const rtdbAdmin = admin.database();
   
 
