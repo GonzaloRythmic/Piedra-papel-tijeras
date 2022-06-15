@@ -1,107 +1,101 @@
 "use strict";
 exports.__esModule = true;
 var express = require("express");
+var state_1 = require("../Cliente/state");
 var databaseAdmin_1 = require("./databaseAdmin");
-var nanoid_1 = require("nanoid");
 var cors = require("cors");
+var uuid_1 = require("uuid");
 var app = express(); //Inicializamos express en alguna variable
 app.use(cors());
 app.use(express.json());
-app.use(express.static("../dist"));
+// app.use(express.urlencoded({ extended: true }));
+app.use(express.static("dist"));
 var port = process.env.PORT || 3001;
 var userCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Users");
 var roomsCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Rooms");
-(function main() {
-    //Create a new user at Firestore if it does not exist
-    app.post("/signup", function (req, res) {
-        var userId = req.body.userId;
-        var owner = req.body.owner;
-        userCollectionRef.where("userId", "==", userId).get().then(function (searchResponse) {
-            if (searchResponse.empty) {
-                userCollectionRef.add({ userId: userId, owner: owner }).then(function (newUserRef) {
-                    res.status(200).json({
-                        userId: newUserRef.id,
-                        "new": true
+//Create a new user at Firestore if it does not exist
+app.post("/signup", function (req, res) {
+    var userName = req.body.userName;
+    userCollectionRef.add({ owner: true, userName: userName }).then(function (newUserRef) {
+        res.status(200).json({
+            userName: userName,
+            userId: newUserRef.id,
+            owner: true
+        });
+        state_1.state.setName(userName);
+        console.log("UserId:", newUserRef.id);
+        var cs = state_1.state.getState();
+        cs.currentGame.gamer_1_longId = newUserRef.id;
+        var newState = state_1.state.setState(cs);
+        console.log(newState);
+        // return console.log("Soy el state y ahora tengo esto",newState);
+    });
+});
+;
+//Authenticate user. If exists returns id
+app.post("/auth", function (req, res) {
+    var userId = req.body.userId;
+    userCollectionRef.where("userid", "==", userId).get().then(function (searchResponse) {
+        if (searchResponse.empty) {
+            res.status(404).json({
+                message: "usuario no registrado."
+            });
+        }
+        else {
+            res.status(200).json({
+                id: searchResponse.docs[0].id
+            });
+        }
+    });
+});
+// Create a room if the user exists
+app.post("/room", function (req, res) {
+    var userId = req.body.userId;
+    var userName = req.body.userName;
+    userCollectionRef.doc(userId.toString()).get().then(function (doc) {
+        if (doc.exists) {
+            var newRoomRef = databaseAdmin_1.rtdbAdmin.ref("Rooms/" + (0, uuid_1.v4)());
+            // const roomLongId = newRoomRef.key;
+            var roomId_1 = 1000 + Math.floor(Math.random() * 999);
+            newRoomRef.set({
+                owner: userId,
+                userName: userName,
+                rtdbId: roomId_1,
+                online: true
+            }).then(function () { return res.json({ message: "El id del RTDB es" + roomId_1 }); });
+        }
+        else {
+            res.status(401).json({
+                message: "El id no existe."
+            });
+        }
+    });
+});
+// Conect user to a room
+app.get("/rooms/:roomId", function (req, res) {
+    var userId = req.query.userId;
+    var roomId = req.params.roomId;
+    userCollectionRef.doc(userId.toString()).get().then(function (doc) {
+        if (doc.exists) {
+            roomsCollectionRef.doc(roomId).get().then(function (snap) {
+                if (snap.exists) {
+                    var data = snap.data();
+                    res.json(data);
+                }
+                else {
+                    res.status(401).json({
+                        message: "El room indicado no existe."
                     });
-                    return newUserRef.id;
-                });
-            }
-            else {
-                res.status(400).json({
-                    message: "Usuario registrado."
-                });
-            }
-        });
+                }
+            });
+        }
+        else {
+            res.status(401).json({
+                message: "El id no existe."
+            });
+        }
     });
-    //Authenticate user. If exists returns id
-    app.post("/auth", function (req, res) {
-        var userId = req.body.userId;
-        userCollectionRef.where("userid", "==", userId).get().then(function (searchResponse) {
-            if (searchResponse.empty) {
-                res.status(404).json({
-                    message: "usuario no registrado."
-                });
-            }
-            else {
-                res.status(200).json({
-                    id: searchResponse.docs[0].id
-                });
-            }
-        });
-    });
-    // Create a room if the user exists
-    app.post("/rooms", function (req, res) {
-        var userId = req.body.userId;
-        userCollectionRef.doc(userId.toString()).get().then(function (doc) {
-            if (doc.exists) {
-                var newRoomRef_1 = databaseAdmin_1.rtdbAdmin.ref("Rooms/" + (0, nanoid_1.nanoid)());
-                newRoomRef_1.set({
-                    owner: userId
-                }).then(function () {
-                    var roomLongId = newRoomRef_1.key;
-                    var roomId = 1000 + Math.floor(Math.random() * 999);
-                    roomsCollectionRef.doc(roomId.toString()).set({
-                        rtdbRoomId: roomLongId
-                    }).then(function () {
-                        res.json({
-                            id: roomId.toString()
-                        });
-                    });
-                });
-            }
-            else {
-                res.status(401).json({
-                    message: "El id no existe."
-                });
-            }
-        });
-    });
-    // Conect user to a room
-    app.get("/rooms/:roomId", function (req, res) {
-        var userId = req.query.userId;
-        var roomId = req.params.roomId;
-        userCollectionRef.doc(userId.toString()).get().then(function (doc) {
-            if (doc.exists) {
-                roomsCollectionRef.doc(roomId).get().then(function (snap) {
-                    if (snap.exists) {
-                        var data = snap.data();
-                        res.json(data);
-                    }
-                    else {
-                        res.status(401).json({
-                            message: "El room indicado no existe."
-                        });
-                    }
-                });
-            }
-            else {
-                res.status(401).json({
-                    message: "El id no existe."
-                });
-            }
-        });
-    });
-    app.listen(port, function () {
-        console.log("Example app listening on port ".concat(port));
-    });
-})();
+});
+app.listen(port, function () {
+    console.log("Example app listening on port ".concat(port));
+});

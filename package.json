@@ -11,17 +11,17 @@
     "express": "^4.18.1",
     "firebase": "^9.8.2",
     "firebase-admin": "^10.2.0",
-    "nanoid": "^4.0.0",
     "nodemon": "^2.0.16",
-    "parcel": "^2.6.0"
+    "parcel": "^2.6.0",
+    "uuid": "^8.3.2"
   },
   "scripts": {
-    "dev": "nodemon --watch ./index.ts --exec ts-node dev.ts",
+    "dev:api": "nodemon --watch ./Server/index.ts --exec ts-node ./Server/dev.ts",
     "dev:front": "parcel serve -p 3000 ./Cliente/index.html",
     "build:front": "parcel build ./Cliente/index.html",
     "build:api": "tsc ./Server/index.ts",
     "build": "yarn build:front && yarn build:api",
-    "start": "yarn build:api && node  --experimental-modules ./Server/index.js",
+    "start": "yarn build:api && node ./Server/index.js",
     "test": "ava"
   },
   "devDependencies": {

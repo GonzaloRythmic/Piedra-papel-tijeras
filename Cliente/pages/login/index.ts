@@ -7,8 +7,12 @@ class Login extends HTMLElement {
         this.querySelector(".button-start").addEventListener("click",(e)=>{
           e.preventDefault;
           const gamer_1_name = document.getElementById("input-name") as any;
-          state.setName(gamer_1_name.value);
-          state.createUser("");
+          const userName = gamer_1_name.value
+          state.setName(userName);
+          state.createUser(userName);
+          const userid = state.getState().currentGame.gamer_1_firestoreId;
+          state.createRoom(userName,userid )
+          const cs = state.getState();
           Router.go('/id_code')
         })
     }

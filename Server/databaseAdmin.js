@@ -21,5 +21,6 @@ var firebaseConfig = {
 };
 var firestoreAdmin = admin.firestore();
 exports.firestoreAdmin = firestoreAdmin;
+firestoreAdmin.settings({ ignoreUndefinedProperties: true });
 var rtdbAdmin = admin.database();
 exports.rtdbAdmin = rtdbAdmin;

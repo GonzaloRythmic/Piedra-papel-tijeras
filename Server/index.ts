@@ -1,18 +1,20 @@
 import *as express from "express"
+import { state } from "../Cliente/state";
 import {rtdbAdmin, firestoreAdmin} from "./databaseAdmin";
 import { getFirestore, getDoc, addDoc } from 'firebase/firestore';
 import { getDatabase, ref, onValue, set } from "firebase/database";
 import { collection, query, where, getDocs, doc, setDoc } from "firebase/firestore";
-import { nanoid } from "nanoid";
 import * as e from "express";
 import * as cors from "cors";
+import { v4 as uuidv4 } from 'uuid';
 
 
 
 const app = express(); //Inicializamos express en alguna variable
 app.use(cors());
 app.use(express.json());
-app.use(express.static("../dist"))
+// app.use(express.urlencoded({ extended: true }));
+app.use(express.static("dist"))
 
 const port = process.env.PORT || 3001;
 
@@ -20,28 +22,26 @@ const userCollectionRef = firestoreAdmin.collection("Users");
 const roomsCollectionRef = firestoreAdmin.collection("Rooms");
 
 
-( function main(){
+
   //Create a new user at Firestore if it does not exist
-  app.post("/signup", (req, res) => {
-    const {userId} = req.body;
-    const {owner} = req.body;
-    userCollectionRef.where("userId", "==", userId).get().then((searchResponse) => {
-      if (searchResponse.empty) {
-        userCollectionRef.add({ userId: userId, owner: owner }).then((newUserRef) => {
+  app.post("/signup", (req, res) => { 
+    const {userName} = req.body;
+        userCollectionRef.add({ owner: true, userName: userName }).then((newUserRef) => {
           res.status(200).json({
+            userName: userName,
             userId: newUserRef.id,
-            new: true,
+            owner: true,
           });
-          return newUserRef.id;
+          state.setName(userName);
+          console.log("UserId:",newUserRef.id);
+          const cs = state.getState();
+          cs.currentGame.gamer_1_longId = newUserRef.id;
+          const newState = state.setState(cs);
+          console.log(newState);
+          // return console.log("Soy el state y ahora tengo esto",newState);
         });
-      } else {
-        res.status(400).json({
-          message:
-          "Usuario registrado.",
-        });
-      }
     });
-  });
+ ;
 
   //Authenticate user. If exists returns id
   app.post("/auth", (req, res) => {
@@ -61,24 +61,20 @@ const roomsCollectionRef = firestoreAdmin.collection("Rooms");
   });
     
 // Create a room if the user exists
-  app.post("/rooms", (req, res) => {
+  app.post("/room", (req, res) => {
     const { userId } = req.body;
+    const {userName} = req.body;
     userCollectionRef.doc(userId.toString()).get().then((doc) => {
       if (doc.exists) {
-        const newRoomRef = rtdbAdmin.ref("Rooms/" + nanoid());
+        const newRoomRef = rtdbAdmin.ref("Rooms/" + uuidv4());
+        // const roomLongId = newRoomRef.key;
+        const roomId = 1000 + Math.floor(Math.random() * 999);
         newRoomRef.set({
           owner: userId,
-        }).then(() => {
-          const roomLongId = newRoomRef.key;
-          const roomId = 1000 + Math.floor(Math.random() * 999);
-          roomsCollectionRef.doc(roomId.toString()).set({
-            rtdbRoomId: roomLongId,
-          }).then(() => {
-            res.json({
-              id: roomId.toString(),
-            });
-          });
-        });
+          userName : userName,
+          rtdbId : roomId,
+          online: true 
+          }).then(() => res.json({message: "El id del RTDB es" + roomId}));
       } else {
         res.status(401).json({
           message: "El id no existe.",
@@ -117,4 +113,4 @@ app.get("/rooms/:roomId", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
-})()
+

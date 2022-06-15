@@ -12,10 +12,10 @@ const state = {
       player1_move: "",
       gamer_1_name: "",
       gamer_2_name: "",
-      gamer_1_shortId: "",
-      gamer_2_shortId:"",
-      gamer_1_longId: "",
-      gamer_2_longId:""
+      gamer_1_rtdbId: "",
+      gamer_2_rtdbId:"",
+      gamer_1_firestoreId: "",
+      gamer_2_firestoreId:""
     },
     history: {
       myScore: 0,
@@ -53,7 +53,6 @@ const state = {
     currentState.currentGame.gamer_1_name = name;
     const newState = currentState;
     this.setState(newState);
-    console.log("Yo soy el nuevo state", currentState.currentGame);
   },
 
   authentication(userId){
@@ -68,22 +67,43 @@ const state = {
     })
   },
 
-  createUser(callback?, userId?) {
-      fetch(API_BASE_URL + "/signup" , {
+  createUser(userName) {
+      return fetch(API_BASE_URL + "/signup" , {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId: userId }),
+        body: JSON.stringify({
+          userName: userName, 
+          owner: true }),
       })
         .then(data => {
           return data.json();
-          console.log(data);
         })
         .then(res => {
-         console.log("Soy el res", res);
-          // this.setState(cs)
+          this.getState().currentGame.gamer_1_firestoreId = res.userId;
+          const newState = this.getState();
+          const state = this.setState(newState);
         });
+  },
+
+  createRoom(userId, userName){ 
+    return fetch (API_BASE_URL + "/room", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId, 
+        userName: userName
+      })
+    }).then(data => {
+      return data.json();
+    }).then((res)=>{
+      console.log("Hola soy el res", res)
+    })
   },
 
   // createNewRoom(userId, user){
