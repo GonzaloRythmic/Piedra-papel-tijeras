@@ -3,13 +3,24 @@ import { state } from "../../state";
 
   class IdCodePage extends HTMLElement {
     connectedCallback() {
+      const cs = state.getState();
+      const userId = cs.currentGame.gamer_1_firestoreId
+      const userName = cs.currentGame.gamer_1_name;
+      // console.log("Soy el userid del login", userId)
+      // console.log("Soy el userid del login", userName);
+      state.createRoom(userId, userName);
+      // const rtdbId = cs.currentGame.gamer_1_rtdbId;
+      // console.log("Soy el rtdbId", rtdbId);
+      console.log("Soy el cs del connectedCallBack", cs);
+      console.log("Soy la rtdbId", cs.currentGame.gamer_1_rtdbId);
       this.render();
+      
     }
   render(){
     const currentState = state.getState();
     const namePlayer1 = currentState.currentGame.gamer_1_name;
-    // const namePlayer2 = currentState.data.currentGame.gamer_2_name;
-
+    const idCode = currentState.currentGame.gamer_1_rtdbId;
+    console.log("Soy el cs del render", currentState);
     const rock = require("url:../../images/piedra. jpg")
     const sisors = require("url:../../images/tijera. jpg")
     const paper = require("url:../../images/papel. jpg")
@@ -28,7 +39,7 @@ import { state } from "../../state";
         </div>
       <div class = home-title-container>
         <h2 class = home-title>Comparte este código con tu contricante</h2>
-        <div></div>
+        <div>${idCode}</div>
       </div>
       
       <div class = img-containter-container>

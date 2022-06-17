@@ -8,11 +8,14 @@ class Login extends HTMLElement {
           e.preventDefault;
           const gamer_1_name = document.getElementById("input-name") as any;
           const userName = gamer_1_name.value
-          state.setName(userName);
           state.createUser(userName);
-          const cs = state.getState();
-          const newUserId = cs.currentGame.gamer_1_firestoreId;
-          console.log("Soy el cs del cliente",newUserId )
+          // const cs = state.getState();
+          // const userId = cs.currentGame.gamer_1_firestoreId
+          // console.log("Soy el userid del login", userId)
+          // console.log("Soy el userName", userName)
+          // state.createRoom(userId, userName);
+          // const rtdbId = cs.currentGame.gamer_1_rtdbId;
+          // console.log("Soy el rtdbId", rtdbId); 
           Router.go('/id_code')
         })
     }

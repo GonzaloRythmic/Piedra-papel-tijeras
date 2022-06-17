@@ -32,7 +32,9 @@ const roomsCollectionRef = firestoreAdmin.collection("Rooms");
             userId: newUserRef.id,
             owner: true,
           });
-        });
+        }).then(()=>{
+          res.json({})
+        }).catch((e)=>{});
     });
  ;
 
@@ -67,7 +69,12 @@ const roomsCollectionRef = firestoreAdmin.collection("Rooms");
           userName : userName,
           rtdbId : roomId,
           online: true 
-          }).then(() => res.json({message: "El id del RTDB es" + roomId}));
+          }).then(() =>
+          res.json({
+            message: "El id del RTDB es" + roomId,
+            rtdbId: roomId 
+          })
+          ).catch((e)=>{});
       } else {
         res.status(401).json({
           message: "El id no existe.",

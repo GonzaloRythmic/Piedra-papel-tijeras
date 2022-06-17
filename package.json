@@ -16,7 +16,7 @@
     "uuid": "^8.3.2"
   },
   "scripts": {
-    "dev:api": "nodemon --watch ./Server/index.ts --exec ts-node ./Server/dev.ts",
+    "dev:api": "yarn build:api && nodemon --watch ./Server/index.ts --exec ts-node ./Server/dev.ts",
     "dev:front": "parcel serve -p 3000 ./Cliente/index.html",
     "build:front": "parcel build ./Cliente/index.html",
     "build:api": "tsc ./Server/index.ts",

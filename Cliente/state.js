@@ -57,18 +57,31 @@ var state = {
         var newState = currentState;
         this.setState(newState);
     },
-    authentication: function (userId) {
-        return fetch("/auth", {
-            method: "post",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                userId: userId
-            })
-        });
+    setId: function (id) {
+        var currentState = this.getState();
+        currentState.currentGame.gamer_1_firestoreId = id;
+        var newState = currentState;
+        this.setState(newState);
     },
+    setRtdbId: function (rtdbId) {
+        var currentState = this.getState();
+        currentState.currentGame.gamer_1_rtdbId = rtdbId;
+        var newState = currentState;
+        this.setState(newState);
+    },
+    // authentication(userId){
+    //   return fetch("/auth", {
+    //     method: "post",
+    //     headers:{
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       userId: userId
+    //     })
+    //   })
+    // },
     createUser: function (userName) {
+        var _this = this;
         return fetch(API_BASE_URL + "/signup", {
             method: "POST",
             mode: "cors",
@@ -84,15 +97,18 @@ var state = {
             return data.json();
         })
             .then(function (res) {
-            var cs = state.getState();
+            console.log("soy el res del create user", res);
             var newUserId = res.userId;
-            cs.currentGame.gamer_1_firestoreId = newUserId;
-            state.setState(cs);
-            console.log("Asi quedo yo el State", cs);
+            var newUserName = res.userName;
+            _this.setId(newUserId);
+            _this.setName(newUserName);
+            console.log("Soy el state.data", _this.getState());
         });
     },
-    createRoom: function (userName, userId) {
-        console.log(userName);
+    getRtdbId: function () {
+    },
+    createRoom: function (userId, userName) {
+        var _this = this;
         return fetch(API_BASE_URL + "/room", {
             method: "POST",
             mode: "cors",
@@ -106,7 +122,7 @@ var state = {
         }).then(function (data) {
             return data.json();
         }).then(function (res) {
-            console.log("Hola soy el res", res);
+            _this.setRtdbId(res.rtdbId);
         });
     },
     suscribe: function (callback) {

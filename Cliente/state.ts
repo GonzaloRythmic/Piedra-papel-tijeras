@@ -55,17 +55,31 @@ const state = {
     this.setState(newState);
   },
 
-  authentication(userId){
-    return fetch("/auth", {
-      method: "post",
-      headers:{
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userId
-      })
-    })
+  setId(id){
+    const currentState= this.getState();
+    currentState.currentGame.gamer_1_firestoreId = id;
+    const newState = currentState;
+    this.setState(newState);
   },
+
+  setRtdbId(rtdbId){
+    const currentState= this.getState();
+    currentState.currentGame.gamer_1_rtdbId = rtdbId;
+    const newState = currentState;
+    this.setState(newState);
+  },
+
+  // authentication(userId){
+  //   return fetch("/auth", {
+  //     method: "post",
+  //     headers:{
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       userId: userId
+  //     })
+  //   })
+  // },
 
   createUser(userName) {
         return fetch(API_BASE_URL + "/signup" , {
@@ -81,17 +95,19 @@ const state = {
         .then(data => {
           return data.json();
         })
-        .then(res => {
-          const cs = state.getState();
+        .then((res)=>{
           const newUserId = res.userId;
-          cs.currentGame.gamer_1_firestoreId = newUserId;
-          state.setState(cs);
-          console.log("Asi quedo yo el State", cs.currentGame);
+          const newUserName = res.userName;
+          this.setId(newUserId);
+          this.setName(newUserName);
         });
   },
 
-  createRoom(userName, userId){ 
-    console.log(userName);
+  getRtdbId(){
+
+  },
+
+  createRoom(userId, userName){ 
     return fetch (API_BASE_URL + "/room", {
       method: "POST",
       mode: "cors",
@@ -99,13 +115,13 @@ const state = {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: userId, 
-        userName: userName
+        userId: userId,
+        userName: userName, 
       })
     }).then(data => {
-      return data.json();
+       return data.json()
     }).then((res)=>{
-      console.log("Hola soy el res", res)
+      this.setRtdbId(res.rtdbId);
     })
   },
 
