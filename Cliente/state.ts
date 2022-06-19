@@ -4,6 +4,22 @@ import { ref, onValue } from "firebase/database";
 const API_BASE_URL = "http://localhost:3001";
 
 type Play = "paper" | "rock" | "scissors";
+export type cs = {
+  currentGame:{
+    player2_move: string,
+    player1_move:string,
+    gamer_1_name: string,
+    gamer_2_name: string,
+    gamer_1_rtdbId: string,
+    gamer_2_rtdbId: string,
+    gamer_1_firestoreId: string,
+    gamer_2_firestoreId: string,
+  },
+  history: {
+    myScore: number,
+    computerScore: number,
+  },
+}
 
 const state = {
   data: {
@@ -31,7 +47,7 @@ const state = {
     }
   },
 
-  getState() {
+  getState():cs {
     return this.data;
   },
 
@@ -81,33 +97,32 @@ const state = {
   //   })
   // },
 
-  createUser(userName) {
-        return fetch(API_BASE_URL + "/signup" , {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userName: userName, 
-          owner: true }),
+  createUser(userName: string): Promise <void>{
+    return fetch(API_BASE_URL + "/signup" , {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userName: userName, 
+        owner: true }),
+    })
+      .then(data => {
+        return data.json();
       })
-        .then(data => {
-          return data.json();
-        })
-        .then((res)=>{
-          const newUserId = res.userId;
-          const newUserName = res.userName;
-          this.setId(newUserId);
-          this.setName(newUserName);
-        });
+      .then((res)=>{
+        const newUserId = res.userId;
+        const newUserName = res.userName;
+        this.setId(newUserId);
+        this.setName(newUserName);
+        const cs = this.getState();
+      });
+      
   },
 
-  getRtdbId(){
 
-  },
-
-  createRoom(userId, userName){ 
+  createRoom(userId:string, userName:string): Promise <void>{ 
     return fetch (API_BASE_URL + "/room", {
       method: "POST",
       mode: "cors",
@@ -121,8 +136,14 @@ const state = {
     }).then(data => {
        return data.json()
     }).then((res)=>{
+      console.log(res.rtdbId)
       this.setRtdbId(res.rtdbId);
+      const cs = this.getState();
+      console.log("vengo del create room", cs)
+      return cs
     })
+    const cs = this.getState();
+    return cs
   },
 
   suscribe(callback: (any) => any) {

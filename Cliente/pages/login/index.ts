@@ -1,23 +1,23 @@
 import {Router} from '@vaadin/router';
 import { state } from '../../state';
 
+function startButton(){
+  document.querySelector(".button-start").addEventListener("click",(e)=>{
+    e.preventDefault;
+    const cs = state.getState();
+    const gamer_1_name = document.getElementById("input-name") as any;
+    const userName = gamer_1_name.value
+    const userId = cs.currentGame.gamer_1_firestoreId;
+    state.createUser(userName);
+    console.log(cs);
+    Router.go('/id_code')
+  })
+}
+
 class Login extends HTMLElement {
     connectedCallback(){
-        this.render();
-        this.querySelector(".button-start").addEventListener("click",(e)=>{
-          e.preventDefault;
-          const gamer_1_name = document.getElementById("input-name") as any;
-          const userName = gamer_1_name.value
-          state.createUser(userName);
-          // const cs = state.getState();
-          // const userId = cs.currentGame.gamer_1_firestoreId
-          // console.log("Soy el userid del login", userId)
-          // console.log("Soy el userName", userName)
-          // state.createRoom(userId, userName);
-          // const rtdbId = cs.currentGame.gamer_1_rtdbId;
-          // console.log("Soy el rtdbId", rtdbId); 
-          Router.go('/id_code')
-        })
+      this.render();
+      startButton();
     }
     render(){
         const rock = require("url:../../images/piedra. jpg")

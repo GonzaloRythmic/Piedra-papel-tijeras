@@ -1,26 +1,27 @@
 import {Router} from '@vaadin/router';
+import { Console } from 'console';
 import { state } from "../../state";
 
   class IdCodePage extends HTMLElement {
     connectedCallback() {
       const cs = state.getState();
-      const userId = cs.currentGame.gamer_1_firestoreId
       const userName = cs.currentGame.gamer_1_name;
-      // console.log("Soy el userid del login", userId)
-      // console.log("Soy el userid del login", userName);
-      state.createRoom(userId, userName);
-      // const rtdbId = cs.currentGame.gamer_1_rtdbId;
-      // console.log("Soy el rtdbId", rtdbId);
-      console.log("Soy el cs del connectedCallBack", cs);
-      console.log("Soy la rtdbId", cs.currentGame.gamer_1_rtdbId);
-      this.render();
-      
+      const userId = cs.currentGame.gamer_1_firestoreId;
+      // const createRoomConst = state.createRoom(userId, userName);
+      // console.log(createRoomConst);
+
+      // state.createRoom(userId, userName).then((res)=>{
+      //   console.log(res.currentGame.gamer_1_rtdbId);
+      // }).then((data)=>{});
+      console.log(cs)
+      this.render();       
     }
+
   render(){
-    const currentState = state.getState();
-    const namePlayer1 = currentState.currentGame.gamer_1_name;
-    const idCode = currentState.currentGame.gamer_1_rtdbId;
-    console.log("Soy el cs del render", currentState);
+    const cs = state.getState();
+    const namePlayer1 = cs.currentGame.gamer_1_name;
+    const idCode = cs.currentGame.gamer_1_rtdbId;
+    console.log(cs.currentGame.gamer_1_name);
     const rock = require("url:../../images/piedra. jpg")
     const sisors = require("url:../../images/tijera. jpg")
     const paper = require("url:../../images/papel. jpg")
@@ -34,13 +35,14 @@ import { state } from "../../state";
             </div>
             <div class ="sala-container">
               <div>SALA</div>
-              <div></div>
+              <div>${idCode}</div>
             </div> 
         </div>
       <div class = home-title-container>
         <h2 class = home-title>Comparte este código con tu contricante</h2>
-        <div>${idCode}</div>
       </div>
+
+      <div class ="idcode-container">${idCode}</div>
       
       <div class = img-containter-container>
         <div class = img-container>
@@ -120,6 +122,10 @@ import { state } from "../../state";
       .header{
         display:flex;
         justify-content:space-between;
+      }
+      .idcode-container{
+        width: 250px;
+        height: 150px;
       }
     `
     this.appendChild(style);

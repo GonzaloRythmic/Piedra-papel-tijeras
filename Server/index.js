@@ -16,14 +16,13 @@ var roomsCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Rooms");
 app.post("/signup", function (req, res) {
     var userName = req.body.userName;
     userCollectionRef.add({ owner: true, userName: userName }).then(function (newUserRef) {
-        console.log("Soy newUserId", newUserRef.id);
         res.status(200).json({
             userName: userName,
             userId: newUserRef.id,
             owner: true
         });
     }).then(function () {
-        res.json({});
+        res.json({ message: "qe onda" });
     })["catch"](function (e) { });
 });
 ;
@@ -62,7 +61,7 @@ app.post("/room", function (req, res) {
                     message: "El id del RTDB es" + roomId_1,
                     rtdbId: roomId_1
                 });
-            })["catch"](function (e) { });
+            }).then(function (response) { });
         }
         else {
             res.status(401).json({

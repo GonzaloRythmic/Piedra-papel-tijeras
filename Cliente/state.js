@@ -97,15 +97,12 @@ var state = {
             return data.json();
         })
             .then(function (res) {
-            console.log("soy el res del create user", res);
             var newUserId = res.userId;
             var newUserName = res.userName;
             _this.setId(newUserId);
             _this.setName(newUserName);
-            console.log("Soy el state.data", _this.getState());
+            var cs = _this.getState();
         });
-    },
-    getRtdbId: function () {
     },
     createRoom: function (userId, userName) {
         var _this = this;
@@ -122,8 +119,14 @@ var state = {
         }).then(function (data) {
             return data.json();
         }).then(function (res) {
+            console.log(res.rtdbId);
             _this.setRtdbId(res.rtdbId);
+            var cs = _this.getState();
+            console.log("vengo del create room", cs);
+            return cs;
         });
+        var cs = this.getState();
+        return cs;
     },
     suscribe: function (callback) {
         this.listeners.push(callback);
