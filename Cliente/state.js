@@ -23,8 +23,7 @@ var state = {
             gamer_1_rtdbId: "",
             gamer_2_rtdbId: "",
             gamer_1_firestoreId: "",
-            gamer_2_firestoreId: "",
-            onlineRoom: {}
+            gamer_2_firestoreId: ""
         },
         history: {
             myScore: 0,
@@ -32,12 +31,12 @@ var state = {
         }
     },
     listeners: [],
-    getStorage: function () {
-        var local = JSON.parse(localStorage.getItem("data"));
-        if (localStorage.getItem("data")) {
-            return (this.data.history = local);
-        }
-    },
+    // getStorage() {
+    //   const local = JSON.parse(localStorage.getItem("data"));
+    //   if (localStorage.getItem("data")) {
+    //     return (this.data.history = local);
+    //   }
+    // },
     getState: function () {
         return this.data;
     },
@@ -84,7 +83,7 @@ var state = {
     createUser: function (userName) {
         var _this = this;
         var cs = this.getState();
-        return fetch(API_BASE_URL + "/signup", {
+        fetch(API_BASE_URL + "/signup", {
             method: "POST",
             mode: "cors",
             headers: {
@@ -99,10 +98,8 @@ var state = {
             return data.json();
         })
             .then(function (res) {
-            var newUserId = res.userId.toString();
-            var newUserName = res.userName;
-            cs.currentGame.gamer_1_firestoreId = newUserId;
-            cs.currentGame.gamer_1_name = newUserName;
+            cs.currentGame.gamer_1_firestoreId = res.userId.toString();
+            cs.currentGame.gamer_1_name = res.userName;
             _this.setState(cs);
         });
     },

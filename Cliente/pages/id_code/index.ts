@@ -2,7 +2,12 @@ import {Router} from '@vaadin/router';
 import { Console } from 'console';
 import { state } from "../../state";
 
-  class IdCodePage extends HTMLElement {  
+  class IdCodePage extends HTMLElement { 
+    
+    addListeners(){
+
+    }
+    
     connectedCallback() {
       this.render();
       // const cs = state.getState();
@@ -19,11 +24,11 @@ import { state } from "../../state";
     }
 
   render(){
-    const cs = state.getState();
+    // const cs = state.getState();
     // const namePlayer1 = cs.currentGame.gamer_1_name;
     // const idCode = cs.currentGame.gamer_1_rtdbId;
-    console.log(cs)
-    console.log(cs.currentGame.gamer_1_firestoreId);
+    // console.log(cs.currentGame)
+    // console.log(cs.currentGame.gamer_1_firestoreId);
 
 
     const rock = require("url:../../images/piedra. jpg")

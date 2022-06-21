@@ -97,9 +97,8 @@ const state = {
   //   })
   // },
 
-  createUser(userName: string){
-    const cs = this.getState()
-     fetch(API_BASE_URL + "/signup" , {
+  createUser(userName: string):Promise<any>{
+    return fetch(API_BASE_URL + "/signup" , {
       method: "POST",
       mode: "cors",
       headers: {
@@ -107,17 +106,9 @@ const state = {
       },
       body: JSON.stringify({
         userName: userName, 
-        owner: true }),
+        owner: true
+      }),
     })
-      .then(data => {
-        return data.json();
-      })
-      .then((res)=>{
-        cs.currentGame.gamer_1_firestoreId = res.userId.toString();
-        cs.currentGame.gamer_1_name =  res.userName;
-        this.setState(cs);
-      });
-      
   },
 
 

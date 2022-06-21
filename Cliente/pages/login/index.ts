@@ -4,26 +4,37 @@ import { state } from '../../state';
 function startButton(){
   document.querySelector(".button-start").addEventListener("click",(e)=>{
     e.preventDefault;
-    // // const cs = state.getState();
     const gamer_1_name = document.getElementById("input-name") as any;
     const userName = gamer_1_name.value
     // // const userId = cs.currentGame.gamer_1_firestoreId;
-    state.createUser(userName);
-    // // console.log(cs);
+    state.createUser(userName).then((res)=>{
+      res.json().then((dataServer)=>{
+        state.setName(dataServer.userName);
+        state.setId(dataServer.userId);
+        // console.log(dataServer);
+      })
+    });
+    if (userName === "") {
+      alert("Debes ingresar un nombre.");
+    }
+    const currentState = state.getState();
+    console.log(currentState);
     Router.go('/id_code')
   })
 }
 
+
+
 class Login extends HTMLElement {
-    connectedCallback(){
-      this.render();
-      startButton();
-    }
-   
-    render(){
+  connectedCallback(){
+    this.render();
+    startButton();
+  }
+    
+  render(){
         // const cs = state.getState()
-        // console.log(cs);
-        // console.log(cs.currentGame);
+        console.log(state.getState().currentGame.gamer_1_name);
+        // console.log(cs.currentGame.gamer_1_name);
         const rock = require("url:../../images/piedra. jpg")
         const sisors = require("url:../../images/tijera. jpg")
         const paper = require("url:../../images/papel. jpg")
