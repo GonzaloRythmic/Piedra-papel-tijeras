@@ -4,12 +4,12 @@ import { state } from '../../state';
 function startButton(){
   document.querySelector(".button-start").addEventListener("click",(e)=>{
     e.preventDefault;
-    const cs = state.getState();
+    // // const cs = state.getState();
     const gamer_1_name = document.getElementById("input-name") as any;
     const userName = gamer_1_name.value
-    const userId = cs.currentGame.gamer_1_firestoreId;
+    // // const userId = cs.currentGame.gamer_1_firestoreId;
     state.createUser(userName);
-    console.log(cs);
+    // // console.log(cs);
     Router.go('/id_code')
   })
 }
@@ -19,7 +19,11 @@ class Login extends HTMLElement {
       this.render();
       startButton();
     }
+   
     render(){
+        // const cs = state.getState()
+        // console.log(cs);
+        // console.log(cs.currentGame);
         const rock = require("url:../../images/piedra. jpg")
         const sisors = require("url:../../images/tijera. jpg")
         const paper = require("url:../../images/papel. jpg")

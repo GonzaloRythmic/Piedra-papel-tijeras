@@ -19,7 +19,7 @@ export type cs = {
     myScore: number,
     computerScore: number,
   },
-}
+} 
 
 const state = {
   data: {
@@ -31,7 +31,7 @@ const state = {
       gamer_1_rtdbId: "",
       gamer_2_rtdbId:"",
       gamer_1_firestoreId: "",
-      gamer_2_firestoreId:""
+      gamer_2_firestoreId:"",
     },
     history: {
       myScore: 0,
@@ -40,12 +40,12 @@ const state = {
   },
   listeners: [],
 
-  getStorage() {
-    const local = JSON.parse(localStorage.getItem("data"));
-    if (localStorage.getItem("data")) {
-      return (this.data.history = local);
-    }
-  },
+  // getStorage() {
+  //   const local = JSON.parse(localStorage.getItem("data"));
+  //   if (localStorage.getItem("data")) {
+  //     return (this.data.history = local);
+  //   }
+  // },
 
   getState():cs {
     return this.data;
@@ -97,8 +97,9 @@ const state = {
   //   })
   // },
 
-  createUser(userName: string): Promise <void>{
-    return fetch(API_BASE_URL + "/signup" , {
+  createUser(userName: string){
+    const cs = this.getState()
+     fetch(API_BASE_URL + "/signup" , {
       method: "POST",
       mode: "cors",
       headers: {
@@ -112,11 +113,9 @@ const state = {
         return data.json();
       })
       .then((res)=>{
-        const newUserId = res.userId;
-        const newUserName = res.userName;
-        this.setId(newUserId);
-        this.setName(newUserName);
-        const cs = this.getState();
+        cs.currentGame.gamer_1_firestoreId = res.userId.toString();
+        cs.currentGame.gamer_1_name =  res.userName;
+        this.setState(cs);
       });
       
   },
@@ -142,8 +141,7 @@ const state = {
       console.log("vengo del create room", cs)
       return cs
     })
-    const cs = this.getState();
-    return cs
+    
   },
 
   suscribe(callback: (any) => any) {

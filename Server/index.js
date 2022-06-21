@@ -15,15 +15,16 @@ var roomsCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Rooms");
 //Create a new user at Firestore if it does not exist
 app.post("/signup", function (req, res) {
     var userName = req.body.userName;
-    userCollectionRef.add({ owner: true, userName: userName }).then(function (newUserRef) {
+    userCollectionRef.add({
+        owner: true,
+        userName: userName
+    }).then(function (newUserRef) {
         res.status(200).json({
             userName: userName,
             userId: newUserRef.id,
             owner: true
         });
-    }).then(function () {
-        res.json({ message: "qe onda" });
-    })["catch"](function (e) { });
+    });
 });
 ;
 //Authenticate user. If exists returns id

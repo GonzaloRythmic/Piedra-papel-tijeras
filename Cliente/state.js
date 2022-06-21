@@ -23,7 +23,8 @@ var state = {
             gamer_1_rtdbId: "",
             gamer_2_rtdbId: "",
             gamer_1_firestoreId: "",
-            gamer_2_firestoreId: ""
+            gamer_2_firestoreId: "",
+            onlineRoom: {}
         },
         history: {
             myScore: 0,
@@ -82,6 +83,7 @@ var state = {
     // },
     createUser: function (userName) {
         var _this = this;
+        var cs = this.getState();
         return fetch(API_BASE_URL + "/signup", {
             method: "POST",
             mode: "cors",
@@ -97,11 +99,11 @@ var state = {
             return data.json();
         })
             .then(function (res) {
-            var newUserId = res.userId;
+            var newUserId = res.userId.toString();
             var newUserName = res.userName;
-            _this.setId(newUserId);
-            _this.setName(newUserName);
-            var cs = _this.getState();
+            cs.currentGame.gamer_1_firestoreId = newUserId;
+            cs.currentGame.gamer_1_name = newUserName;
+            _this.setState(cs);
         });
     },
     createRoom: function (userId, userName) {
@@ -125,8 +127,6 @@ var state = {
             console.log("vengo del create room", cs);
             return cs;
         });
-        var cs = this.getState();
-        return cs;
     },
     suscribe: function (callback) {
         this.listeners.push(callback);
