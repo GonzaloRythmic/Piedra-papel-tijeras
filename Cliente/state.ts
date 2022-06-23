@@ -4,34 +4,36 @@ import { ref, onValue } from "firebase/database";
 const API_BASE_URL = "http://localhost:3001";
 
 type Play = "paper" | "rock" | "scissors";
-export type cs = {
-  currentGame:{
-    player2_move: string,
-    player1_move:string,
-    gamer_1_name: string,
-    gamer_2_name: string,
-    gamer_1_rtdbId: string,
-    gamer_2_rtdbId: string,
-    gamer_1_firestoreId: string,
-    gamer_2_firestoreId: string,
-  },
-  history: {
-    myScore: number,
-    computerScore: number,
-  },
-} 
+// export type cs = {
+//   currentGame:{
+//     userEmail:string,
+//     gamer_1_name: string,
+//     gamer_1_rtdbId: string,
+//     gamer_1_firestoreId: string,
+//     player1_move:string,
+//     gamer_2_name: string,
+//     player2_move: string,
+//     gamer_2_rtdbId: string,
+//     gamer_2_firestoreId: string,
+//   },
+//   history: {
+//     myScore: number,
+//     computerScore: number,
+//   },
+// } 
 
 const state = {
   data: {
     currentGame: {
-      player2_move: "",
-      player1_move: "",
-      gamer_1_name: "",
-      gamer_2_name: "",
-      gamer_1_rtdbId: "",
-      gamer_2_rtdbId:"",
-      gamer_1_firestoreId: "",
-      gamer_2_firestoreId:"",
+      userEmail:"",
+      gamer_1_name:"" ,
+      gamer_1_rtdbId:"" ,
+      gamer_1_firestoreId:"" ,
+      player1_move:"",
+      gamer_2_name:"" ,
+      player2_move:"" ,
+      gamer_2_rtdbId:"" ,
+      gamer_2_firestoreId:"" ,
     },
     history: {
       myScore: 0,
@@ -47,15 +49,15 @@ const state = {
   //   }
   // },
 
-  getState():cs {
+  getState() {
     return this.data;
   },
 
   setState(newState) {
     this.data = newState;
-    // for (const cb of this.listeners) {
-    //   cb();
-    // }
+    for (const cb of this.listeners) {
+      cb();
+    }
     // this.savedData();
   },
 
@@ -64,38 +66,46 @@ const state = {
   //   localStorage.setItem("data", JSON.stringify(currentHistory));
   // },
 
-  setName(name){
+  setEmailAndName(email:string, name:string){
     const currentState= this.getState();
+    currentState.currentGame.userEmail = email;
     currentState.currentGame.gamer_1_name = name;
-    const newState = currentState;
-    this.setState(newState);
+    this.setState(currentState);
   },
 
   setId(id){
     const currentState= this.getState();
     currentState.currentGame.gamer_1_firestoreId = id;
-    const newState = currentState;
-    this.setState(newState);
+    this.setState(currentState);
   },
 
   setRtdbId(rtdbId){
     const currentState= this.getState();
     currentState.currentGame.gamer_1_rtdbId = rtdbId;
-    const newState = currentState;
-    this.setState(newState);
+    this.setState(currentState);
   },
 
-  // authentication(userId){
-  //   return fetch("/auth", {
-  //     method: "post",
-  //     headers:{
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       userId: userId
-  //     })
-  //   })
-  // },
+  authentication(){
+    const cs = this.getState();
+    console.log("currentState", cs.currentGame)
+    if (cs.currentGame.userEmail) {
+      console.log("Entro por aca", cs.currentGame.userEmail)
+      fetch(API_BASE_URL + "/auth", {
+        method: "post",
+        headers:{
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({userEmail: cs.currentGame.userEmail})
+      }).then((res)=>{
+        // console.log("Soy el res", res)
+        res.json()
+      }).then((data)=>{
+        // console.log(data);
+      })
+    } else {
+      console.error("No existe el email")
+    }
+  },
 
   createUser(userName: string):Promise<any>{
     return fetch(API_BASE_URL + "/signup" , {
@@ -112,7 +122,7 @@ const state = {
   },
 
 
-  createRoom(userId:string, userName:string): Promise <void>{ 
+  createRoom(userId:string, userName:string): Promise<any>{ 
     return fetch (API_BASE_URL + "/room", {
       method: "POST",
       mode: "cors",
@@ -123,16 +133,21 @@ const state = {
         userId: userId,
         userName: userName, 
       })
-    }).then(data => {
-       return data.json()
-    }).then((res)=>{
-      console.log(res.rtdbId)
-      this.setRtdbId(res.rtdbId);
-      const cs = this.getState();
-      console.log("vengo del create room", cs)
-      return cs
-    })
-    
+    })  
+  },
+
+  enterToRoom(userId: string, rtdbId: string): Promise<any>{
+    return fetch (API_BASE_URL + "/room/:roomId", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userId,
+        rtdbId: rtdbId, 
+      })
+    }) 
   },
 
   suscribe(callback: (any) => any) {

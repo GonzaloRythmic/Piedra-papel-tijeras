@@ -3,11 +3,6 @@ import { Console } from 'console';
 import { state } from "../../state";
 
   class IdCodePage extends HTMLElement { 
-    
-    addListeners(){
-
-    }
-    
     connectedCallback() {
       this.render();
       // const cs = state.getState();
@@ -24,11 +19,13 @@ import { state } from "../../state";
     }
 
   render(){
-    // const cs = state.getState();
-    // const namePlayer1 = cs.currentGame.gamer_1_name;
-    // const idCode = cs.currentGame.gamer_1_rtdbId;
-    // console.log(cs.currentGame)
-    // console.log(cs.currentGame.gamer_1_firestoreId);
+    // console.log(3)
+    const cs = state.getState();
+    const namePlayer1 = cs.currentGame.gamer_1_name;
+    const idCode = cs.currentGame.gamer_1_rtdbId;
+    // console.log(cs);
+    // console.log(idCode);
+    // console.log(4);
 
 
     const rock = require("url:../../images/piedra. jpg")
@@ -40,15 +37,18 @@ import { state } from "../../state";
     this.innerHTML = `
         <div class="header">
             <div class="score-container">
-                <h4></h4>
+                <h4>Jugador:${namePlayer1}</h4>
             </div>
             <div class ="sala-container">
               <div>SALA</div>
-              <div></div>
+              <div>${idCode}</div>
             </div> 
         </div>
       <div class = home-title-container>
         <h2 class = home-title>Comparte este código con tu contricante</h2>
+      </div>
+      <div class="id-code">
+        <div>${idCode}</div>
       </div>
 
       <div class ="idcode-container"></div>
@@ -77,7 +77,7 @@ import { state } from "../../state";
         justify-content: center;
       }
       .home-title{
-        font-family: "Permanent Marker";
+        font-family: 'Anton', sans-serif;
         font-size: 80px;
       }
       .home-button-container{
@@ -135,6 +135,13 @@ import { state } from "../../state";
       .idcode-container{
         width: 250px;
         height: 150px;
+      }
+      .id-code{
+        font-family: 'Anton', sans-serif;
+        font-size: 100px;
+        display: flex;
+        justify-content: center;
+        
       }
     `
     this.appendChild(style);

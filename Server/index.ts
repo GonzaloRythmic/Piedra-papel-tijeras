@@ -23,79 +23,105 @@ const roomsCollectionRef = firestoreAdmin.collection("Rooms");
 
 
 
-  //Create a new user at Firestore if it does not exist
-  app.post("/signup", (req, res) => { 
-    const {userName} = req.body;
-        userCollectionRef.add({ 
-          owner: true, 
-          userName: userName 
-        }).then((newUserRef) => {
-          res.status(200).json({
-            userName: userName,
-            userId: newUserRef.id,
-            owner: true,
-          });
-        })
-    });
- ;
-
-  //Authenticate user. If exists returns id
-  app.post("/auth", (req, res) => {
-    const { userId } = req.body;
-    userCollectionRef.where("userid", "==", userId).get().then((searchResponse) => {
-      if (searchResponse.empty) {
-        res.status(404).json({
-          message:
-          "usuario no registrado.",
-        });
-      } else {
+//Create a new user at Firestore
+app.post("/signup", (req, res) => { 
+  const {userName} = req.body;
+      userCollectionRef.add({ 
+        owner: true, 
+        userName: userName 
+      }).then((newUserRef) => {
         res.status(200).json({
-          id: searchResponse.docs[0].id,
+          userName: userName,
+          userId: newUserRef.id,
+          owner: true,
         });
-      }
-    });
+      })
+});
+ 
+
+//Authenticate user. If exists returns id
+app.post("/auth", (req, res) => {
+  const { userEmail } = req.body;
+  userCollectionRef.where("userEmail", "==", userEmail).get().then((searchResponse) => {
+    if (searchResponse.empty) {
+      res.status(404).json({
+        message:
+        "usuario no registrado.",
+      });
+    } else {
+      res.status(200).json({
+        id: searchResponse.docs[0].id,
+      });
+    }
   });
+});
     
 // Create a room if the user exists
-  app.post("/room", (req, res) => {
-    const { userId } = req.body;
-    const {userName} = req.body;
-    userCollectionRef.doc(userId).get().then((doc) => {
-      if (doc.exists) {
-        const newRoomRef = rtdbAdmin.ref("Rooms/" + uuidv4());
-        // const roomLongId = newRoomRef.key;
-        const roomId = 1000 + Math.floor(Math.random() * 999);
-        newRoomRef.set({
-          owner: userId,
-          userName : userName,
-          rtdbId : roomId,
-          online: true 
-          }).then(() =>{
+app.post("/room", (req, res) => {
+  const { userId } = req.body;
+  const {userName} = req.body;
+  userCollectionRef.doc(userId).get().then((doc) => {
+    if (doc.exists) {
+      //Create room at RealTimeDataBase
+      const newRoomRef = rtdbAdmin.ref("Rooms/" + uuidv4());
+      const longRoomId = newRoomRef.key;
+      console.log("Soy el roomLongId", longRoomId);
+      const shortRoomId = 1000 + Math.floor(Math.random() * 999);
+      newRoomRef.set({
+        owner: userId,
+        userName : userName,
+        shortRoomId : shortRoomId,
+        longRoomId : longRoomId,
+        online: true 
+        }).then(() =>{
           return res.json({
-            message: "El id del RTDB es" + roomId,
-            rtdbId: roomId 
-          })
-        }).then((response)=>{});
-      } else {
-        res.status(401).json({
-          message: "El id no existe.",
-        });
-      }
-    });
+          shortRoomId: shortRoomId,
+          longRoomId: longRoomId 
+        })
+      }).then((response)=>{});
+    } else {
+      res.status(401).json({
+        message: "El id no existe.",
+      });
+    }
   });
+});
+
+
+//verifica si existe la sala en base al short id:
+app.post("/auth_room", (req, res) => {
+  const { shortRoomId } = req.body;
+  roomsCollectionRef.where("rtdbRoomId", "==", shortRoomId).get().then((searchResponse) => {
+    if (!searchResponse.empty) {
+      // const owner = searchResponse.docs[0].get("owner");
+      res.json({
+        roomLongId: searchResponse.docs[0].id,
+        // owner,
+      });
+    } else {
+      res.status(404).json({
+        message: "no existe un room con ese id",
+      });
+    }
+  });
+});
 
 
 // Conect user to a room
-app.get("/rooms/:roomId", (req, res) => {
-  const { userId } = req.query;
-  const { roomId } = req.params;
+app.get("/enter_room/",  (req, res) => {
+  const { userId } = req.body;
+  const { roomId } = req.body;
   userCollectionRef.doc(userId.toString()).get().then((doc) => {
     if (doc.exists) {
+      console.log("Hola, el documento existe");
       roomsCollectionRef.doc(roomId).get().then((snap) => {
+        console.log("Soy el snap", snap)
         if (snap.exists) {
+          console.log("El documento sigue existiendo")
           const data = snap.data();
           res.json(data);
         } else {
+          console.log("Entre por aca el documento no existe")
           res.status(401).json({
             message: "El room indicado no existe.",
           });

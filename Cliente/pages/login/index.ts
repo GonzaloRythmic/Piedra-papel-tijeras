@@ -1,40 +1,52 @@
 import {Router} from '@vaadin/router';
 import { state } from '../../state';
 
-function startButton(){
-  document.querySelector(".button-start").addEventListener("click",(e)=>{
-    e.preventDefault;
-    const gamer_1_name = document.getElementById("input-name") as any;
-    const userName = gamer_1_name.value
-    // // const userId = cs.currentGame.gamer_1_firestoreId;
-    state.createUser(userName).then((res)=>{
-      res.json().then((dataServer)=>{
-        state.setName(dataServer.userName);
-        state.setId(dataServer.userId);
-        // console.log(dataServer);
-      })
-    });
-    if (userName === "") {
-      alert("Debes ingresar un nombre.");
-    }
-    const currentState = state.getState();
-    console.log(currentState);
-    Router.go('/id_code')
-  })
-}
 
 
 
 class Login extends HTMLElement {
+  startButton(){
+    document.querySelector(".button-start").addEventListener("click",(e)=>{
+      e.preventDefault;
+      const gamer_1_name = document.getElementById("input-name") as any;
+      const email = document.getElementById("input-email") as any;
+
+      const userName = gamer_1_name.value
+      const userEmail = email.value;
+
+      if (userName === "" && userEmail === "") {
+        alert("Debes ingresar un nombre y un email.");
+        Router.go('/login')
+      }else {
+        state.setEmailAndName(userEmail, userName)
+        state.authentication();
+        // state.createUser(userName).then((res)=>{
+        //   res.json().then((dataServer)=>{
+        //     state.setName(dataServer.userName);
+        //     state.setId(dataServer.userId);
+        //     console.log("Soy el cs hasta acá,", state.getState())
+        //     console.log(2);
+        //     const userId = state.getState().currentGame.gamer_1_firestoreId;
+        //     const userName = state.getState().currentGame.gamer_1_name;
+        //     state.createRoom(userId,userName).then((res)=>{
+        //       res.json().then((dataServer)=>{
+        //         console.log("Soy la data server", dataServer);
+        //         state.setRtdbId(dataServer.rtdbId);
+        Router.go('/id_code')
+        //       })
+        //     })
+        //   })
+        // })
+      }
+    })
+  }
+
   connectedCallback(){
     this.render();
-    startButton();
+    this.startButton();
   }
     
   render(){
-        // const cs = state.getState()
-        console.log(state.getState().currentGame.gamer_1_name);
-        // console.log(cs.currentGame.gamer_1_name);
         const rock = require("url:../../images/piedra. jpg")
         const sisors = require("url:../../images/tijera. jpg")
         const paper = require("url:../../images/papel. jpg")
@@ -42,12 +54,21 @@ class Login extends HTMLElement {
         const sala = require("url:../../images/botón (5).png")
     
         this.innerHTML = `
+        <div>
         <div class = home-title-container>
             <h2 class = home-title>Por favor ingresa tu nombre</h2>
         </div>
         <div class = home-button-container>
             <input class="input" type="text" id="input-name">
         </div>
+
+        <div class = home-title-container>
+        <h2 class = home-title>Por favor ingresa tu email</h2>
+        </div>
+        <div class = home-button-container>
+        <input class="input" type="text" id="input-email">
+        </div>
+
         <div class="button-container">
             <img class = button-start src="${button}">
         </div>
@@ -83,7 +104,6 @@ class Login extends HTMLElement {
         height: auto;
         display: flex;
         justify-content: center;
-        margin-top: 75px;
         text-align: center; 
       }
       .home-button{
@@ -95,11 +115,11 @@ class Login extends HTMLElement {
         justify-content: center;
       }
       .img-container{
+        margin-top: 35px;
         width: 100%;
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         column-gap: 50px;
-        position: absolute; bottom: 0;
       }
       .img-mini-container{
         display: flex;

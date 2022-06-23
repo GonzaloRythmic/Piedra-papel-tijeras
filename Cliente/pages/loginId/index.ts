@@ -1,41 +1,41 @@
 import {Router} from '@vaadin/router';
 
 class LoginId extends HTMLElement {
-    connectedCallback(){
-        this.render();
-    }
-    render(){
-        const rock = require("url:../../images/piedra. jpg")
-        const sisors = require("url:../../images/tijera. jpg")
-        const paper = require("url:../../images/papel. jpg")
-        const button = require("url:../../images/boton. jpg")
-        const sala = require("url:../../images/botón (5).png")
+  connectedCallback(){
+    this.render();
+  }
+  render(){
+    const rock = require("url:../../images/piedra. jpg")
+    const sisors = require("url:../../images/tijera. jpg")
+    const paper = require("url:../../images/papel. jpg")
+    const button = require("url:../../images/boton. jpg")
+    const sala = require("url:../../images/botón (5).png")
     
-        this.innerHTML = `
-        <div class = home-title-container>
-            <h2 class = home-title>Por favor ingresa un ID</h2>
+    this.innerHTML = `
+    <div class = home-title-container>
+        <h2 class = home-title>Por favor ingresa un ID</h2>
+    </div>
+    <div class = home-button-container>
+        <input class="input" type="text">
+    </div>
+    <div class="sala-container">
+        <img class = sala src="${sala}">
+    </div>
+    <div class = img-containter-container>
+        <div class = img-container>
+        <div class = img-mini-container>
+            <img class = img src="${rock}">
         </div>
-        <div class = home-button-container>
-            <input class="input" type="text">
+        <div class = img-mini-container>
+            <img class = img src="${sisors}">
+        </div>  
+        <div class = img-mini-container>
+            <img class = img src="${paper}">
         </div>
-        <div class="sala-container">
-            <img class = sala src="${sala}">
-        </div>
-        <div class = img-containter-container>
-            <div class = img-container>
-            <div class = img-mini-container>
-                <img class = img src="${rock}">
-            </div>
-            <div class = img-mini-container>
-                <img class = img src="${sisors}">
-            </div>  
-            <div class = img-mini-container>
-                <img class = img src="${paper}">
-            </div>
-        </div>
-    `;
+    </div>`;
+  
+    
     const style = document.createElement("style");
-
     style.innerHTML =`
       .home-title-container{
         width: 100%;
@@ -104,6 +104,6 @@ class LoginId extends HTMLElement {
       }
     `
     this.appendChild(style);
-    };
+  };
 }
 customElements.define("loginid-page", LoginId);

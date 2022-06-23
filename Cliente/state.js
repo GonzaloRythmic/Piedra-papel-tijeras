@@ -13,16 +13,34 @@ var __assign = (this && this.__assign) || function () {
 exports.__esModule = true;
 exports.state = void 0;
 var API_BASE_URL = "http://localhost:3001";
+// export type cs = {
+//   currentGame:{
+//     userEmail:string,
+//     gamer_1_name: string,
+//     gamer_1_rtdbId: string,
+//     gamer_1_firestoreId: string,
+//     player1_move:string,
+//     gamer_2_name: string,
+//     player2_move: string,
+//     gamer_2_rtdbId: string,
+//     gamer_2_firestoreId: string,
+//   },
+//   history: {
+//     myScore: number,
+//     computerScore: number,
+//   },
+// } 
 var state = {
     data: {
         currentGame: {
-            player2_move: "",
-            player1_move: "",
+            userEmail: "",
             gamer_1_name: "",
-            gamer_2_name: "",
             gamer_1_rtdbId: "",
-            gamer_2_rtdbId: "",
             gamer_1_firestoreId: "",
+            player1_move: "",
+            gamer_2_name: "",
+            player2_move: "",
+            gamer_2_rtdbId: "",
             gamer_2_firestoreId: ""
         },
         history: {
@@ -42,48 +60,56 @@ var state = {
     },
     setState: function (newState) {
         this.data = newState;
-        // for (const cb of this.listeners) {
-        //   cb();
-        // }
+        for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
+            var cb = _a[_i];
+            cb();
+        }
         // this.savedData();
     },
     // savedData() {
     //   const currentHistory = this.getState().history;
     //   localStorage.setItem("data", JSON.stringify(currentHistory));
     // },
-    setName: function (name) {
+    setEmailAndName: function (email, name) {
         var currentState = this.getState();
+        currentState.currentGame.userEmail = email;
         currentState.currentGame.gamer_1_name = name;
-        var newState = currentState;
-        this.setState(newState);
+        this.setState(currentState);
     },
     setId: function (id) {
         var currentState = this.getState();
         currentState.currentGame.gamer_1_firestoreId = id;
-        var newState = currentState;
-        this.setState(newState);
+        this.setState(currentState);
     },
     setRtdbId: function (rtdbId) {
         var currentState = this.getState();
         currentState.currentGame.gamer_1_rtdbId = rtdbId;
-        var newState = currentState;
-        this.setState(newState);
+        this.setState(currentState);
     },
-    // authentication(userId){
-    //   return fetch("/auth", {
-    //     method: "post",
-    //     headers:{
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({
-    //       userId: userId
-    //     })
-    //   })
-    // },
-    createUser: function (userName) {
-        var _this = this;
+    authentication: function () {
         var cs = this.getState();
-        fetch(API_BASE_URL + "/signup", {
+        console.log("currentState", cs.currentGame);
+        if (cs.currentGame.userEmail) {
+            console.log("Entro por aca", cs.currentGame.userEmail);
+            fetch(API_BASE_URL + "/auth", {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ userEmail: cs.currentGame.userEmail })
+            }).then(function (res) {
+                // console.log("Soy el res", res)
+                res.json();
+            }).then(function (data) {
+                // console.log(data);
+            });
+        }
+        else {
+            console.error("No existe el email");
+        }
+    },
+    createUser: function (userName) {
+        return fetch(API_BASE_URL + "/signup", {
             method: "POST",
             mode: "cors",
             headers: {
@@ -93,18 +119,9 @@ var state = {
                 userName: userName,
                 owner: true
             })
-        })
-            .then(function (data) {
-            return data.json();
-        })
-            .then(function (res) {
-            cs.currentGame.gamer_1_firestoreId = res.userId.toString();
-            cs.currentGame.gamer_1_name = res.userName;
-            _this.setState(cs);
         });
     },
     createRoom: function (userId, userName) {
-        var _this = this;
         return fetch(API_BASE_URL + "/room", {
             method: "POST",
             mode: "cors",
@@ -115,14 +132,19 @@ var state = {
                 userId: userId,
                 userName: userName
             })
-        }).then(function (data) {
-            return data.json();
-        }).then(function (res) {
-            console.log(res.rtdbId);
-            _this.setRtdbId(res.rtdbId);
-            var cs = _this.getState();
-            console.log("vengo del create room", cs);
-            return cs;
+        });
+    },
+    enterToRoom: function (userId, rtdbId) {
+        return fetch(API_BASE_URL + "/room/:roomId", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                userId: userId,
+                rtdbId: rtdbId
+            })
         });
     },
     suscribe: function (callback) {

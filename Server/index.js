@@ -12,7 +12,7 @@ app.use(express.static("dist"));
 var port = process.env.PORT || 3001;
 var userCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Users");
 var roomsCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Rooms");
-//Create a new user at Firestore if it does not exist
+//Create a new user at Firestore
 app.post("/signup", function (req, res) {
     var userName = req.body.userName;
     userCollectionRef.add({
@@ -26,11 +26,10 @@ app.post("/signup", function (req, res) {
         });
     });
 });
-;
 //Authenticate user. If exists returns id
 app.post("/auth", function (req, res) {
-    var userId = req.body.userId;
-    userCollectionRef.where("userid", "==", userId).get().then(function (searchResponse) {
+    var userEmail = req.body.userEmail;
+    userCollectionRef.where("userEmail", "==", userEmail).get().then(function (searchResponse) {
         if (searchResponse.empty) {
             res.status(404).json({
                 message: "usuario no registrado."
@@ -49,18 +48,21 @@ app.post("/room", function (req, res) {
     var userName = req.body.userName;
     userCollectionRef.doc(userId).get().then(function (doc) {
         if (doc.exists) {
+            //Create room at RealTimeDataBase
             var newRoomRef = databaseAdmin_1.rtdbAdmin.ref("Rooms/" + (0, uuid_1.v4)());
-            // const roomLongId = newRoomRef.key;
-            var roomId_1 = 1000 + Math.floor(Math.random() * 999);
+            var longRoomId_1 = newRoomRef.key;
+            console.log("Soy el roomLongId", longRoomId_1);
+            var shortRoomId_1 = 1000 + Math.floor(Math.random() * 999);
             newRoomRef.set({
                 owner: userId,
                 userName: userName,
-                rtdbId: roomId_1,
+                shortRoomId: shortRoomId_1,
+                longRoomId: longRoomId_1,
                 online: true
             }).then(function () {
                 return res.json({
-                    message: "El id del RTDB es" + roomId_1,
-                    rtdbId: roomId_1
+                    shortRoomId: shortRoomId_1,
+                    longRoomId: longRoomId_1
                 });
             }).then(function (response) { });
         }
@@ -71,18 +73,39 @@ app.post("/room", function (req, res) {
         }
     });
 });
+//verifica si existe la sala en base al short id:
+app.post("/auth_room", function (req, res) {
+    var shortRoomId = req.body.shortRoomId;
+    roomsCollectionRef.where("rtdbRoomId", "==", shortRoomId).get().then(function (searchResponse) {
+        if (!searchResponse.empty) {
+            // const owner = searchResponse.docs[0].get("owner");
+            res.json({
+                roomLongId: searchResponse.docs[0].id
+            });
+        }
+        else {
+            res.status(404).json({
+                message: "no existe un room con ese id"
+            });
+        }
+    });
+});
 // Conect user to a room
-app.get("/rooms/:roomId", function (req, res) {
-    var userId = req.query.userId;
-    var roomId = req.params.roomId;
+app.get("/enter_room/", function (req, res) {
+    var userId = req.body.userId;
+    var roomId = req.body.roomId;
     userCollectionRef.doc(userId.toString()).get().then(function (doc) {
         if (doc.exists) {
+            console.log("Hola, el documento existe");
             roomsCollectionRef.doc(roomId).get().then(function (snap) {
+                console.log("Soy el snap", snap);
                 if (snap.exists) {
+                    console.log("El documento sigue existiendo");
                     var data = snap.data();
                     res.json(data);
                 }
                 else {
+                    console.log("Entre por aca el documento no existe");
                     res.status(401).json({
                         message: "El room indicado no existe."
                     });
