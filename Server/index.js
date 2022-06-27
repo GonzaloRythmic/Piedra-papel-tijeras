@@ -15,9 +15,11 @@ var roomsCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Rooms");
 //Create a new user at Firestore
 app.post("/signup", function (req, res) {
     var userName = req.body.userName;
+    var userEmail = req.body.userEmail;
     userCollectionRef.add({
         owner: true,
-        userName: userName
+        userName: userName,
+        userEmail: userEmail
     }).then(function (newUserRef) {
         res.status(200).json({
             userName: userName,
@@ -45,7 +47,6 @@ app.post("/auth", function (req, res) {
 // Create a room if the user exists
 app.post("/room", function (req, res) {
     var userId = req.body.userId;
-    var userName = req.body.userName;
     userCollectionRef.doc(userId).get().then(function (doc) {
         if (doc.exists) {
             //Create room at RealTimeDataBase
@@ -55,7 +56,6 @@ app.post("/room", function (req, res) {
             var shortRoomId_1 = 1000 + Math.floor(Math.random() * 999);
             newRoomRef.set({
                 owner: userId,
-                userName: userName,
                 shortRoomId: shortRoomId_1,
                 longRoomId: longRoomId_1,
                 online: true

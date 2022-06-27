@@ -1,59 +1,76 @@
-import {Router} from '@vaadin/router';
-import { state } from '../../state';
-
-
-
+import { Router } from "@vaadin/router";
+import { state } from "../../state";
 
 class Login extends HTMLElement {
-  startButton(){
-    document.querySelector(".button-start").addEventListener("click",(e)=>{
+  startButton() {
+    document.querySelector(".button-start").addEventListener("click", (e) => {
       e.preventDefault;
       const gamer_1_name = document.getElementById("input-name") as any;
       const email = document.getElementById("input-email") as any;
 
-      const userName = gamer_1_name.value
+      const userName = gamer_1_name.value;
       const userEmail = email.value;
 
+      //If user does not exists
       if (userName === "" && userEmail === "") {
         alert("Debes ingresar un nombre y un email.");
-        Router.go('/login')
-      }else {
-        state.setEmailAndName(userEmail, userName)
-        state.authentication();
-        // state.createUser(userName).then((res)=>{
-        //   res.json().then((dataServer)=>{
-        //     state.setName(dataServer.userName);
-        //     state.setId(dataServer.userId);
-        //     console.log("Soy el cs hasta acá,", state.getState())
-        //     console.log(2);
-        //     const userId = state.getState().currentGame.gamer_1_firestoreId;
-        //     const userName = state.getState().currentGame.gamer_1_name;
-        //     state.createRoom(userId,userName).then((res)=>{
-        //       res.json().then((dataServer)=>{
-        //         console.log("Soy la data server", dataServer);
-        //         state.setRtdbId(dataServer.rtdbId);
+        Router.go("/login");
+      } else {
+        console.log("(1)Empieza lógica Login")
+        //Set name and email at State
+        state.setEmailAndName(userEmail, userName);
+        console.log("(2)Termina de setear Email y Name")
+        console.log("(3)Línea siguiente comienza a ejecutar createUserAtFirestore")
+        // Create user at Firestore
+        state.createUserAtFirestore().then((res)=>{
+          console.log("(6)Soy el primer then del createUserAtFirestore")
+        }).then(()=>{
+          console.log("(7)Soy el segundo .then() de createUserAtFirestore")
+        })
+        console.log("(8)Sigo lógica de page /login");
+        console.log("(9)Línea siguiente comienza authentication en /login")
+        // Return userFireStore ID if it exists and set at State
+        state.authentication((err)=>{
+          if (err) {
+            console.error("Hubo un error")
+          }
+        });
+
+        console.log("(12)Termina lógica de /login y se va a Router.go()")
+        // console.log(state.getState().currentGame.gamer_1_name);
+        // console.log(state.getState().currentGame.gamer_1_firestoreId);
+
+
+        // //Create room at Real Time Data Base with userID
+        // state.createRoom((err)=>{
+        //   if (err) {
+        //     console.error("Hubo un error")
+        //   }
+        // })
+
+        // console.log(state.getState())
         Router.go('/id_code')
         //       })
         //     })
         //   })
         // })
       }
-    })
+    });
   }
 
-  connectedCallback(){
+  connectedCallback() {
     this.render();
     this.startButton();
   }
-    
-  render(){
-        const rock = require("url:../../images/piedra. jpg")
-        const sisors = require("url:../../images/tijera. jpg")
-        const paper = require("url:../../images/papel. jpg")
-        const button = require("url:../../images/boton. jpg")
-        const sala = require("url:../../images/botón (5).png")
-    
-        this.innerHTML = `
+
+  render() {
+    const rock = require("url:../../images/piedra. jpg");
+    const sisors = require("url:../../images/tijera. jpg");
+    const paper = require("url:../../images/papel. jpg");
+    const button = require("url:../../images/boton. jpg");
+    const sala = require("url:../../images/botón (5).png");
+
+    this.innerHTML = `
         <div>
         <div class = home-title-container>
             <h2 class = home-title>Por favor ingresa tu nombre</h2>
@@ -87,7 +104,7 @@ class Login extends HTMLElement {
     `;
     const style = document.createElement("style");
 
-    style.innerHTML =`
+    style.innerHTML = `
       .home-title-container{
         width: 100%;
         height: auto;
@@ -152,8 +169,8 @@ class Login extends HTMLElement {
           border-solid: black;
           border-radius: 30px;
       }
-    `
+    `;
     this.appendChild(style);
-    };
+  }
 }
 customElements.define("login-page", Login);

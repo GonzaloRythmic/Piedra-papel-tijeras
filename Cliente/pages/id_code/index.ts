@@ -5,12 +5,12 @@ import { state } from "../../state";
   class IdCodePage extends HTMLElement { 
     connectedCallback() {
       this.render();
-      // const cs = state.getState();
-      // const userName = cs.currentGame.gamer_1_name;
-      // const userId = cs.currentGame.gamer_1_firestoreId;
+      const cs = state.getState();
+      const userName = cs.currentGame.gamer_1_name;
+      const userId = cs.currentGame.gamer_1_firestoreId;
   
       // const createRoomConst = state.createRoom(userId, userName);
-      // console.log(createRoomConst);
+      console.log("(13)Page /id_code, acá deberia recuperar el userId que ya deberia estar en el state",userId);
   
       // state.createRoom(userId, userName).then((res)=>{
         //   console.log(res.currentGame.gamer_1_rtdbId);

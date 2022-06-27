@@ -20,20 +20,21 @@ type Play = "paper" | "rock" | "scissors";
 //     myScore: number,
 //     computerScore: number,
 //   },
-// } 
+// }
 
 const state = {
   data: {
     currentGame: {
-      userEmail:"",
-      gamer_1_name:"" ,
-      gamer_1_rtdbId:"" ,
-      gamer_1_firestoreId:"" ,
-      player1_move:"",
-      gamer_2_name:"" ,
-      player2_move:"" ,
-      gamer_2_rtdbId:"" ,
-      gamer_2_firestoreId:"" ,
+      userEmail: "",
+      gamer_1_name: "",
+      gamer_1_rtdbId: "",
+      game_1_longrtdbId: "",
+      gamer_1_firestoreId: "",
+      player1_move: "",
+      gamer_2_name: "",
+      player2_move: "",
+      gamer_2_rtdbId: "",
+      gamer_2_firestoreId: "",
     },
     history: {
       myScore: 0,
@@ -66,64 +67,108 @@ const state = {
   //   localStorage.setItem("data", JSON.stringify(currentHistory));
   // },
 
-  setEmailAndName(email:string, name:string){
-    const currentState= this.getState();
+  setEmailAndName(email: string, name: string) {
+    const currentState = this.getState();
     currentState.currentGame.userEmail = email;
     currentState.currentGame.gamer_1_name = name;
     this.setState(currentState);
   },
 
-  setId(id){
-    const currentState= this.getState();
+  setFirestoreId(id) {
+    const currentState = this.getState();
     currentState.currentGame.gamer_1_firestoreId = id;
     this.setState(currentState);
   },
 
-  setRtdbId(rtdbId){
-    const currentState= this.getState();
+  setRtdbId(rtdbId) {
+    const currentState = this.getState();
     currentState.currentGame.gamer_1_rtdbId = rtdbId;
     this.setState(currentState);
   },
 
-  authentication(){
+  authentication(callback): Promise<any> {
+    console.log("(10)Empieza authentication")
     const cs = this.getState();
-    console.log("currentState", cs.currentGame)
     if (cs.currentGame.userEmail) {
-      console.log("Entro por aca", cs.currentGame.userEmail)
-      fetch(API_BASE_URL + "/auth", {
+      return fetch(API_BASE_URL + "/auth", {
         method: "post",
-        headers:{
+        headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({userEmail: cs.currentGame.userEmail})
-      }).then((res)=>{
-        // console.log("Soy el res", res)
-        res.json()
-      }).then((data)=>{
-        // console.log(data);
+        body: JSON.stringify({ userEmail: cs.currentGame.userEmail }),
       })
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          const cs = this.getState();
+          cs.currentGame.gamer_1_firestoreId = data.id;
+          state.setState(cs);
+          callback();
+          console.log("(11)Termina authentication")
+        });
     } else {
-      console.error("No existe el email")
+      console.error("No existe el email");
     }
   },
 
-  createUser(userName: string):Promise<any>{
-    return fetch(API_BASE_URL + "/signup" , {
+  createUserAtFirestore():Promise<any> {
+    console.log("(4)Comienza a ejecutar createUserAtFirestore")
+    const cs = this.getState();
+    const userName = cs.currentGame.gamer_1_name;
+    const userEmail = cs.currentGame.userEmail;  
+    return fetch(API_BASE_URL + "/signup", {
       method: "POST",
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userName: userName, 
-        owner: true
+        userName: userName,
+        userEmail: userEmail,
+        owner: true,
       }),
-    })
+    }).then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        // cs.currentGame.gamer_1_firestoreId = data.userId;
+        // this.setState(cs);
+      
+        console.log("(5)Termina de ejecutar createUserAtFirestore")
+      });
   },
 
+  createRoom(callback) {
+    const cs = state.getState();
+    console.log("Ejecuto createRoom y en el state encuentro esto", cs);
+    if (cs.currentGame.gamer_1_firestoreId) {
+      console.log("Entro por acá");
+      return fetch(API_BASE_URL + "/room", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: cs.currentGame.gamer_1_firestoreId,
+        }),
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          console.log(data);
+          // cs.currentGame.gamer_1_rtdbId = data.shortRoomId
+        });
+    } else {
+      console.error("El id ingresado no existe");
+    }
+    console.log("Termino de ejecutar CreateRoom");
+  },
 
-  createRoom(userId:string, userName:string): Promise<any>{ 
-    return fetch (API_BASE_URL + "/room", {
+  enterToRoom(userId: string, rtdbId: string): Promise<any> {
+    return fetch(API_BASE_URL + "/room/:roomId", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -131,23 +176,9 @@ const state = {
       },
       body: JSON.stringify({
         userId: userId,
-        userName: userName, 
-      })
-    })  
-  },
-
-  enterToRoom(userId: string, rtdbId: string): Promise<any>{
-    return fetch (API_BASE_URL + "/room/:roomId", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userId,
-        rtdbId: rtdbId, 
-      })
-    }) 
+        rtdbId: rtdbId,
+      }),
+    });
   },
 
   suscribe(callback: (any) => any) {
@@ -201,7 +232,7 @@ const state = {
 
     if (youWin) {
       return "wins";
-    } 
+    }
 
     const looseS: boolean = player1 == "scissors" && player2 == "rock";
     const looseR: boolean = player1 == "rock" && player2 == "paper";
@@ -209,9 +240,8 @@ const state = {
     const youLoose = [looseS, looseR, looseP].includes(true);
 
     if (youLoose) {
-      return "loss"
+      return "loss";
     }
-
   },
 
   //SAVE THE MOVEMENT AND SUMMON THE SCORE
@@ -226,7 +256,6 @@ const state = {
     this.setScore();
     return machineMove();
   },
-
 };
 
 export { state };

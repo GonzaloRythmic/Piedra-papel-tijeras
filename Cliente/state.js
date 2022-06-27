@@ -36,6 +36,7 @@ var state = {
             userEmail: "",
             gamer_1_name: "",
             gamer_1_rtdbId: "",
+            game_1_longrtdbId: "",
             gamer_1_firestoreId: "",
             player1_move: "",
             gamer_2_name: "",
@@ -76,7 +77,7 @@ var state = {
         currentState.currentGame.gamer_1_name = name;
         this.setState(currentState);
     },
-    setId: function (id) {
+    setFirestoreId: function (id) {
         var currentState = this.getState();
         currentState.currentGame.gamer_1_firestoreId = id;
         this.setState(currentState);
@@ -86,29 +87,32 @@ var state = {
         currentState.currentGame.gamer_1_rtdbId = rtdbId;
         this.setState(currentState);
     },
-    authentication: function () {
+    authentication: function (callback) {
+        var _this = this;
         var cs = this.getState();
-        console.log("currentState", cs.currentGame);
         if (cs.currentGame.userEmail) {
-            console.log("Entro por aca", cs.currentGame.userEmail);
-            fetch(API_BASE_URL + "/auth", {
+            return fetch(API_BASE_URL + "/auth", {
                 method: "post",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ userEmail: cs.currentGame.userEmail })
             }).then(function (res) {
-                // console.log("Soy el res", res)
-                res.json();
+                return res.json();
             }).then(function (data) {
-                // console.log(data);
+                var cs = _this.getState();
+                cs.currentGame.gamer_1_firestoreId = data.id;
+                state.setState(cs);
+                callback();
             });
         }
         else {
             console.error("No existe el email");
         }
     },
-    createUser: function (userName) {
+    createUserAtFirestore: function (userName, userEmail, callback) {
+        var _this = this;
+        var cs = this.getState();
         return fetch(API_BASE_URL + "/signup", {
             method: "POST",
             mode: "cors",
@@ -117,22 +121,43 @@ var state = {
             },
             body: JSON.stringify({
                 userName: userName,
+                userEmail: userEmail,
                 owner: true
             })
+        }).then(function (res) {
+            return res.json();
+        }).then(function (data) {
+            cs.currentGame.gamer_1_name = data.userName;
+            cs.currentGame.gamer_1_firestoreId = data.userId;
+            _this.setState(cs);
+            callback();
         });
     },
-    createRoom: function (userId, userName) {
-        return fetch(API_BASE_URL + "/room", {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                userId: userId,
-                userName: userName
-            })
-        });
+    createRoom: function (callback) {
+        var cs = state.getState();
+        console.log("Ejecuto createRoom y en el state encuentro esto", cs);
+        if (cs.currentGame.gamer_1_firestoreId) {
+            console.log("Entro por acá");
+            return fetch(API_BASE_URL + "/room", {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    userId: cs.currentGame.gamer_1_firestoreId
+                })
+            }).then(function (res) {
+                return res.json();
+            }).then(function (data) {
+                console.log(data);
+                // cs.currentGame.gamer_1_rtdbId = data.shortRoomId
+            });
+        }
+        else {
+            console.error("El id ingresado no existe");
+        }
+        console.log("Termino de ejecutar CreateRoom");
     },
     enterToRoom: function (userId, rtdbId) {
         return fetch(API_BASE_URL + "/room/:roomId", {
