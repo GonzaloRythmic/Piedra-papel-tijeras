@@ -5,27 +5,13 @@ import { state } from "../../state";
   class IdCodePage extends HTMLElement { 
     connectedCallback() {
       this.render();
-      const cs = state.getState();
-      const userName = cs.currentGame.gamer_1_name;
-      const userId = cs.currentGame.gamer_1_firestoreId;
-  
-      // const createRoomConst = state.createRoom(userId, userName);
-      console.log("(13)Page /id_code, acá deberia recuperar el userId que ya deberia estar en el state",userId);
-  
-      // state.createRoom(userId, userName).then((res)=>{
-        //   console.log(res.currentGame.gamer_1_rtdbId);
-        // }).then((data)=>{});
-        // console.log(cs)
+      state.listenDatabase();
     }
 
   render(){
-    // console.log(3)
     const cs = state.getState();
     const namePlayer1 = cs.currentGame.gamer_1_name;
     const idCode = cs.currentGame.gamer_1_rtdbId;
-    // console.log(cs);
-    // console.log(idCode);
-    // console.log(4);
 
 
     const rock = require("url:../../images/piedra. jpg")

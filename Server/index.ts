@@ -66,7 +66,6 @@ app.post("/room", (req, res) => {
       //Create room at RealTimeDataBase
       const newRoomRef = rtdbAdmin.ref("Rooms/" + uuidv4());
       const longRoomId = newRoomRef.key;
-      console.log("Soy el roomLongId", longRoomId);
       const shortRoomId = 1000 + Math.floor(Math.random() * 999);
       newRoomRef.set({
         owner: userId,
@@ -87,20 +86,34 @@ app.post("/room", (req, res) => {
   });
 });
 
+// Create room at Firestore
+const cs = state.getState();
+app.post ("/create_room_firestore", (req, res)=>{
+  const {shortRtdbId} = req.body;
+  const {longRtdbId} = req.body
+  roomsCollectionRef.add({
+    shortRtdbId: shortRtdbId,
+    longRtdbId: longRtdbId
+  }).then((newUserRef) => {
+    res.status(200).json({
+     message: "Room creado en Firestore"
+    });
+  }) 
+})
 
-//verifica si existe la sala en base al short id:
+//Verify shortID and return longID
 app.post("/auth_room", (req, res) => {
-  const { shortRoomId } = req.body;
-  roomsCollectionRef.where("rtdbRoomId", "==", shortRoomId).get().then((searchResponse) => {
+  const { shortRtdbId } = req.body;
+  console.log(shortRtdbId)
+  roomsCollectionRef.where("shortRtdbId", "==", shortRtdbId).get().then((searchResponse) => {
     if (!searchResponse.empty) {
-      // const owner = searchResponse.docs[0].get("owner");
       res.json({
-        roomLongId: searchResponse.docs[0].id,
-        // owner,
+        roomLongId: searchResponse.docs[0].get("longRtdbId"),
       });
     } else {
       res.status(404).json({
         message: "no existe un room con ese id",
+        searchResponse
       });
     }
   });
@@ -109,12 +122,12 @@ app.post("/auth_room", (req, res) => {
 
 // Conect user to a room
 app.get("/enter_room/",  (req, res) => {
-  const { userId } = req.body;
-  const { roomId } = req.body;
+  const {userId} = req.body;
+  const { shortRoomId } = req.body;
   userCollectionRef.doc(userId.toString()).get().then((doc) => {
     if (doc.exists) {
       console.log("Hola, el documento existe");
-      roomsCollectionRef.doc(roomId).get().then((snap) => {
+      roomsCollectionRef.doc(shortRoomId).get().then((snap) => {
         console.log("Soy el snap", snap)
         if (snap.exists) {
           console.log("El documento sigue existiendo")

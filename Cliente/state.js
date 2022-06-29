@@ -29,7 +29,7 @@ var API_BASE_URL = "http://localhost:3001";
 //     myScore: number,
 //     computerScore: number,
 //   },
-// } 
+// }
 var state = {
     data: {
         currentGame: {
@@ -39,10 +39,7 @@ var state = {
             game_1_longrtdbId: "",
             gamer_1_firestoreId: "",
             player1_move: "",
-            gamer_2_name: "",
-            player2_move: "",
-            gamer_2_rtdbId: "",
-            gamer_2_firestoreId: ""
+            rtdbData: {}
         },
         history: {
             myScore: 0,
@@ -87,8 +84,7 @@ var state = {
         currentState.currentGame.gamer_1_rtdbId = rtdbId;
         this.setState(currentState);
     },
-    authentication: function (callback) {
-        var _this = this;
+    authentication: function () {
         var cs = this.getState();
         if (cs.currentGame.userEmail) {
             return fetch(API_BASE_URL + "/auth", {
@@ -97,22 +93,16 @@ var state = {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ userEmail: cs.currentGame.userEmail })
-            }).then(function (res) {
-                return res.json();
-            }).then(function (data) {
-                var cs = _this.getState();
-                cs.currentGame.gamer_1_firestoreId = data.id;
-                state.setState(cs);
-                callback();
             });
         }
         else {
             console.error("No existe el email");
         }
     },
-    createUserAtFirestore: function (userName, userEmail, callback) {
-        var _this = this;
+    createUserAtFirestore: function () {
         var cs = this.getState();
+        var userName = cs.currentGame.gamer_1_name;
+        var userEmail = cs.currentGame.userEmail;
         return fetch(API_BASE_URL + "/signup", {
             method: "POST",
             mode: "cors",
@@ -124,20 +114,11 @@ var state = {
                 userEmail: userEmail,
                 owner: true
             })
-        }).then(function (res) {
-            return res.json();
-        }).then(function (data) {
-            cs.currentGame.gamer_1_name = data.userName;
-            cs.currentGame.gamer_1_firestoreId = data.userId;
-            _this.setState(cs);
-            callback();
         });
     },
-    createRoom: function (callback) {
+    createRoom: function () {
         var cs = state.getState();
-        console.log("Ejecuto createRoom y en el state encuentro esto", cs);
         if (cs.currentGame.gamer_1_firestoreId) {
-            console.log("Entro por acá");
             return fetch(API_BASE_URL + "/room", {
                 method: "POST",
                 mode: "cors",
@@ -147,31 +128,73 @@ var state = {
                 body: JSON.stringify({
                     userId: cs.currentGame.gamer_1_firestoreId
                 })
-            }).then(function (res) {
-                return res.json();
-            }).then(function (data) {
-                console.log(data);
-                // cs.currentGame.gamer_1_rtdbId = data.shortRoomId
             });
         }
         else {
             console.error("El id ingresado no existe");
         }
-        console.log("Termino de ejecutar CreateRoom");
     },
-    enterToRoom: function (userId, rtdbId) {
-        return fetch(API_BASE_URL + "/room/:roomId", {
+    createRoomAtFirestore: function () {
+        var cs = this.getState();
+        if (cs.currentGame.gamer_1_rtdbId && cs.currentGame.game_1_longrtdbId) {
+            return fetch(API_BASE_URL + "/create_room_firestore", {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    shortRtdbId: cs.currentGame.gamer_1_rtdbId,
+                    longRtdbId: cs.currentGame.game_1_longrtdbId
+                })
+            });
+        }
+        else {
+            console.log("Faltan los Id's");
+        }
+    },
+    listenDatabase: function (shortID) {
+        console.log("Short ID", shortID);
+        var cs = this.getState();
+        return fetch(API_BASE_URL + '/auth_room', {
             method: "POST",
             mode: "cors",
             headers: {
-                "Content-Type": "application/json"
+                "Content-type": "application/json"
             },
             body: JSON.stringify({
-                userId: userId,
-                rtdbId: rtdbId
+                shortRtdbId: shortID
             })
         });
     },
+    authenticateRoom: function (shortID) {
+        var cs = this.getState();
+        return fetch(API_BASE_URL + "/auth_room", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+                shortRtdbId: cs.currentGame.gamer_1_rtdbId
+            })
+        });
+    },
+    // enterToRoom(): Promise<any> {
+    //   const cs = this.getState();
+    //   const userId = cs.currentGame.g 
+    //   return fetch(API_BASE_URL + "/room/:roomId", {
+    //     method: "POST",
+    //     mode: "cors",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       userId: userId,
+    //       rtdbId: rtdbId,
+    //     }),
+    //   });
+    // },
     suscribe: function (callback) {
         this.listeners.push(callback);
     },

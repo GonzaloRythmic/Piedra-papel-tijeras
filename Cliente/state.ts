@@ -31,10 +31,7 @@ const state = {
       game_1_longrtdbId: "",
       gamer_1_firestoreId: "",
       player1_move: "",
-      gamer_2_name: "",
-      player2_move: "",
-      gamer_2_rtdbId: "",
-      gamer_2_firestoreId: "",
+      rtdbData: {}
     },
     history: {
       myScore: 0,
@@ -86,8 +83,7 @@ const state = {
     this.setState(currentState);
   },
 
-  authentication(callback): Promise<any> {
-    console.log("(10)Empieza authentication")
+  authentication(): Promise<any> {
     const cs = this.getState();
     if (cs.currentGame.userEmail) {
       return fetch(API_BASE_URL + "/auth", {
@@ -97,23 +93,13 @@ const state = {
         },
         body: JSON.stringify({ userEmail: cs.currentGame.userEmail }),
       })
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          const cs = this.getState();
-          cs.currentGame.gamer_1_firestoreId = data.id;
-          state.setState(cs);
-          callback();
-          console.log("(11)Termina authentication")
-        });
+
     } else {
       console.error("No existe el email");
     }
   },
 
   createUserAtFirestore():Promise<any> {
-    console.log("(4)Comienza a ejecutar createUserAtFirestore")
     const cs = this.getState();
     const userName = cs.currentGame.gamer_1_name;
     const userEmail = cs.currentGame.userEmail;  
@@ -128,22 +114,12 @@ const state = {
         userEmail: userEmail,
         owner: true,
       }),
-    }).then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        // cs.currentGame.gamer_1_firestoreId = data.userId;
-        // this.setState(cs);
-      
-        console.log("(5)Termina de ejecutar createUserAtFirestore")
-      });
+    })
   },
 
-  createRoom(callback) {
+  createRoom(): Promise <any> {
     const cs = state.getState();
-    console.log("Ejecuto createRoom y en el state encuentro esto", cs);
     if (cs.currentGame.gamer_1_firestoreId) {
-      console.log("Entro por acá");
       return fetch(API_BASE_URL + "/room", {
         method: "POST",
         mode: "cors",
@@ -154,32 +130,75 @@ const state = {
           userId: cs.currentGame.gamer_1_firestoreId,
         }),
       })
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          console.log(data);
-          // cs.currentGame.gamer_1_rtdbId = data.shortRoomId
-        });
+        
     } else {
       console.error("El id ingresado no existe");
     }
-    console.log("Termino de ejecutar CreateRoom");
   },
 
-  enterToRoom(userId: string, rtdbId: string): Promise<any> {
-    return fetch(API_BASE_URL + "/room/:roomId", {
+  createRoomAtFirestore(){
+    const cs = this.getState();
+    if (cs.currentGame.gamer_1_rtdbId && cs.currentGame.game_1_longrtdbId) {
+      return fetch(API_BASE_URL + "/create_room_firestore", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          shortRtdbId: cs.currentGame.gamer_1_rtdbId,
+          longRtdbId: cs.currentGame.game_1_longrtdbId
+        })
+      })
+    } else {
+      console.log("Faltan los Id's")
+    }
+  },
+
+  listenDatabase(shortID?) {
+    console.log("Short ID", shortID)
+    const cs = this.getState();
+    return fetch (API_BASE_URL + '/auth_room', {
       method: "POST",
       mode: "cors",
       headers: {
-        "Content-Type": "application/json",
+        "Content-type": "application/json",
       },
       body: JSON.stringify({
-        userId: userId,
-        rtdbId: rtdbId,
-      }),
-    });
+        shortRtdbId: shortID,
+      })
+   })
   },
+
+  authenticateRoom(shortID){
+    const cs = this.getState()
+    return fetch (API_BASE_URL + "/auth_room",{
+      method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          shortRtdbId: cs.currentGame.gamer_1_rtdbId,
+        })
+      })
+  },
+
+  // enterToRoom(): Promise<any> {
+  //   const cs = this.getState();
+  //   const userId = cs.currentGame.g 
+  //   return fetch(API_BASE_URL + "/room/:roomId", {
+  //     method: "POST",
+  //     mode: "cors",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({
+  //       userId: userId,
+  //       rtdbId: rtdbId,
+  //     }),
+  //   });
+  // },
 
   suscribe(callback: (any) => any) {
     this.listeners.push(callback);

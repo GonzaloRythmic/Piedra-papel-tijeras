@@ -5,9 +5,10 @@ class Login extends HTMLElement {
   startButton() {
     document.querySelector(".button-start").addEventListener("click", (e) => {
       e.preventDefault;
+
+      //Get elements
       const gamer_1_name = document.getElementById("input-name") as any;
       const email = document.getElementById("input-email") as any;
-
       const userName = gamer_1_name.value;
       const userEmail = email.value;
 
@@ -16,44 +17,41 @@ class Login extends HTMLElement {
         alert("Debes ingresar un nombre y un email.");
         Router.go("/login");
       } else {
-        console.log("(1)Empieza lógica Login")
+       
         //Set name and email at State
         state.setEmailAndName(userEmail, userName);
-        console.log("(2)Termina de setear Email y Name")
-        console.log("(3)Línea siguiente comienza a ejecutar createUserAtFirestore")
+        
         // Create user at Firestore
         state.createUserAtFirestore().then((res)=>{
-          console.log("(6)Soy el primer then del createUserAtFirestore")
-        }).then(()=>{
-          console.log("(7)Soy el segundo .then() de createUserAtFirestore")
+          return res.json();
+        }).then((data)=>{
+
+          //Authenticate user
+          state.authentication().then((res) => {
+            return res.json();
+          }).then((data) => {
+            const cs = state.getState();
+            cs.currentGame.gamer_1_firestoreId = data.id;
+            state.setState(cs);
+
+            //Create room at Real Time Data Base
+            state.createRoom().then((res) => {
+              return res.json();
+            }).then((data) => {
+              cs.currentGame.gamer_1_rtdbId = data.shortRoomId
+              cs.currentGame.game_1_longrtdbId = data.longRoomId
+              state.setState(cs);
+              //Create room at Firestore
+              state.createRoomAtFirestore().then((res)=>{
+                return res.json()
+              }).then(()=>{
+                console.log("Acá terminamos")
+                Router.go("/id_code")
+              })
+            });
+          });;
+
         })
-        console.log("(8)Sigo lógica de page /login");
-        console.log("(9)Línea siguiente comienza authentication en /login")
-        // Return userFireStore ID if it exists and set at State
-        state.authentication((err)=>{
-          if (err) {
-            console.error("Hubo un error")
-          }
-        });
-
-        console.log("(12)Termina lógica de /login y se va a Router.go()")
-        // console.log(state.getState().currentGame.gamer_1_name);
-        // console.log(state.getState().currentGame.gamer_1_firestoreId);
-
-
-        // //Create room at Real Time Data Base with userID
-        // state.createRoom((err)=>{
-        //   if (err) {
-        //     console.error("Hubo un error")
-        //   }
-        // })
-
-        // console.log(state.getState())
-        Router.go('/id_code')
-        //       })
-        //     })
-        //   })
-        // })
       }
     });
   }
