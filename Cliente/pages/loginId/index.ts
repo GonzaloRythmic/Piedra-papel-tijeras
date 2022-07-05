@@ -1,4 +1,5 @@
 import {Router} from '@vaadin/router';
+import { startAfter } from 'firebase/database';
 import { state } from '../../state';
 
 class LoginId extends HTMLElement {
@@ -25,26 +26,30 @@ class LoginId extends HTMLElement {
         // Create user at Firestore
         state.createUserAtFirestore().then((res)=>{
           return res.json();
-        }).then((data)=>{
-
-          //Authenticate user
+        }).then(()=>{
+          //Authenticate user return userID
           state.authentication().then((res) => {
             return res.json();
           }).then((data) => {
             const cs = state.getState();
             cs.currentGame.gamer_1_firestoreId = data.id;
-            state.setState(cs);
-            console.log("Línea siguiente comienza state.authenticateRoom()")
-            state.authenticateRoom(inputIDValue).then((res)=>{
+            //Authenticate room return longRtdbId
+            state.authenticateRoom(inputIDValue.toString()).then((res)=>{
               return res.json()
             }).then((data)=>{
-              console.log(data)
+              cs.currentGame.gamer_2_longrtdbId = data.roomLongId
+              state.setState(cs);
+              console.log("El dato esta en el state", cs.currentGame.game_1_longrtdbId)
+              console.log("El dato que llega por promesa", data.roomLongId)
+              state.conectToRoom(data.roomLongId.toString()).then((res)=>{
+                return res.json()
+              }).then((data)=>{
+                console.log(data);
+                // Router.go("/waiting-room")              
+              })
             })
-            state.listenDatabase(inputIDValue)
-            console.log("Acá termina lógica de /loginId")
           });;
         })
-        console.log(state.getState())
       }
     })
   }

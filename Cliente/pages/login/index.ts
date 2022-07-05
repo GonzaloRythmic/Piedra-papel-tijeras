@@ -45,7 +45,6 @@ class Login extends HTMLElement {
               state.createRoomAtFirestore().then((res)=>{
                 return res.json()
               }).then(()=>{
-                console.log("Acá terminamos")
                 Router.go("/id_code")
               })
             });

@@ -33,12 +33,18 @@ var API_BASE_URL = "http://localhost:3001";
 var state = {
     data: {
         currentGame: {
+            online: false,
             userEmail: "",
             gamer_1_name: "",
             gamer_1_rtdbId: "",
             game_1_longrtdbId: "",
             gamer_1_firestoreId: "",
             player1_move: "",
+            gamer_2_name: "",
+            gamer_2_rtdbi: "",
+            gamer_2_longrtdbId: "",
+            gamer_2_firestoreId: "",
+            Player_2_move: "",
             rtdbData: {}
         },
         history: {
@@ -126,7 +132,7 @@ var state = {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    userId: cs.currentGame.gamer_1_firestoreId
+                    userId: cs.currentGame.game_1_longrtdbId
                 })
             });
         }
@@ -153,19 +159,27 @@ var state = {
             console.log("Faltan los Id's");
         }
     },
-    listenDatabase: function (shortID) {
-        console.log("Short ID", shortID);
+    conectToRoom: function () {
+        console.log("soy el conectoroom");
         var cs = this.getState();
-        return fetch(API_BASE_URL + '/auth_room', {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-type": "application/json"
-            },
-            body: JSON.stringify({
-                shortRtdbId: shortID
-            })
-        });
+        console.log("soy el cs del conecToRoom", cs);
+        if (cs.currentGame.game_1_longrtdbId) {
+            return fetch(API_BASE_URL + '/enter_room', {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    longRtdbId: cs.currentGame.game_1_longrtdbId
+                })
+            });
+        }
+        else {
+            console.log("No se cuentra el rtdb");
+        }
+    },
+    checkOnline: function () {
     },
     authenticateRoom: function (shortID) {
         var cs = this.getState();
@@ -176,7 +190,7 @@ var state = {
                 "Content-type": "application/json"
             },
             body: JSON.stringify({
-                shortRtdbId: cs.currentGame.gamer_1_rtdbId
+                shortRtdbId: shortID
             })
         });
     },

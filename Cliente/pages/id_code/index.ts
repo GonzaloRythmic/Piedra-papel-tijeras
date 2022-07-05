@@ -4,8 +4,11 @@ import { state } from "../../state";
 
   class IdCodePage extends HTMLElement { 
     connectedCallback() {
+      const cs = state.getState()
+      const longRtdbId = cs.currentGame.game_1_longrtdbId
       this.render();
-      state.listenDatabase();
+      state.conectToRoom(longRtdbId);
+
     }
 
   render(){

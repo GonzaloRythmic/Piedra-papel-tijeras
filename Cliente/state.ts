@@ -25,12 +25,18 @@ type Play = "paper" | "rock" | "scissors";
 const state = {
   data: {
     currentGame: {
+      online: false, 
       userEmail: "",
       gamer_1_name: "",
       gamer_1_rtdbId: "",
       game_1_longrtdbId: "",
       gamer_1_firestoreId: "",
       player1_move: "",
+      gamer_2_name: "",
+      gamer_2_rtdbi:"",
+      gamer_2_longrtdbId:"",
+      gamer_2_firestoreId:"",
+      Player_2_move:"",
       rtdbData: {}
     },
     history: {
@@ -99,7 +105,7 @@ const state = {
     }
   },
 
-  createUserAtFirestore():Promise<any> {
+  createUserAtFirestore() {
     const cs = this.getState();
     const userName = cs.currentGame.gamer_1_name;
     const userEmail = cs.currentGame.userEmail;  
@@ -127,7 +133,7 @@ const state = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: cs.currentGame.gamer_1_firestoreId,
+          userId: cs.currentGame.game_1_longrtdbId,
         }),
       })
         
@@ -155,22 +161,24 @@ const state = {
     }
   },
 
-  listenDatabase(shortID?) {
-    console.log("Short ID", shortID)
-    const cs = this.getState();
-    return fetch (API_BASE_URL + '/auth_room', {
+  conectToRoom(longRtdbId: string) {
+    return fetch (API_BASE_URL + '/enter_room', {
       method: "POST",
       mode: "cors",
       headers: {
         "Content-type": "application/json",
       },
       body: JSON.stringify({
-        shortRtdbId: shortID,
+       longRtdbId: longRtdbId,
       })
-   })
+    })
   },
 
-  authenticateRoom(shortID){
+  checkOnline(){
+
+  },
+
+  authenticateRoom(shortID: string){
     const cs = this.getState()
     return fetch (API_BASE_URL + "/auth_room",{
       method: "POST",
@@ -179,7 +187,7 @@ const state = {
           "Content-type": "application/json",
         },
         body: JSON.stringify({
-          shortRtdbId: cs.currentGame.gamer_1_rtdbId,
+          shortRtdbId: shortID,
         })
       })
   },

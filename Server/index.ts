@@ -92,8 +92,8 @@ app.post ("/create_room_firestore", (req, res)=>{
   const {shortRtdbId} = req.body;
   const {longRtdbId} = req.body
   roomsCollectionRef.add({
-    shortRtdbId: shortRtdbId,
-    longRtdbId: longRtdbId
+    shortRtdbId: shortRtdbId.toString(),
+    longRtdbId: longRtdbId.toString()
   }).then((newUserRef) => {
     res.status(200).json({
      message: "Room creado en Firestore"
@@ -104,8 +104,7 @@ app.post ("/create_room_firestore", (req, res)=>{
 //Verify shortID and return longID
 app.post("/auth_room", (req, res) => {
   const { shortRtdbId } = req.body;
-  console.log(shortRtdbId)
-  roomsCollectionRef.where("shortRtdbId", "==", shortRtdbId).get().then((searchResponse) => {
+  roomsCollectionRef.where("shortRtdbId", "==", shortRtdbId.toString()).get().then((searchResponse) => {
     if (!searchResponse.empty) {
       res.json({
         roomLongId: searchResponse.docs[0].get("longRtdbId"),
@@ -113,40 +112,39 @@ app.post("/auth_room", (req, res) => {
     } else {
       res.status(404).json({
         message: "no existe un room con ese id",
-        searchResponse
       });
     }
   });
 });
 
 
-// Conect user to a room
-app.get("/enter_room/",  (req, res) => {
-  const {userId} = req.body;
-  const { shortRoomId } = req.body;
-  userCollectionRef.doc(userId.toString()).get().then((doc) => {
-    if (doc.exists) {
-      console.log("Hola, el documento existe");
-      roomsCollectionRef.doc(shortRoomId).get().then((snap) => {
-        console.log("Soy el snap", snap)
-        if (snap.exists) {
-          console.log("El documento sigue existiendo")
-          const data = snap.data();
-          res.json(data);
-        } else {
-          console.log("Entre por aca el documento no existe")
-          res.status(401).json({
-            message: "El room indicado no existe.",
-          });
-        }
+// Conect user to a Real Time Data Base room
+app.post("/enter_room",  (req, res) => {
+  const {longRtdbtID} = req.body;
+  const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
+  chatRoomRef.on('value', (snapshot) => {
+    console.log("Esto es lo que hay en rtdb", snapshot.val());
+    res.json({message: snapshot.val()})
+  }, (errorObject) => {
+    console.log('The read failed: ' + errorObject.name);
+  }); 
+});
+
+app.get('/online', (req, res) => {
+  const {online} = req.body
+  const {shortRoomId} = req.body
+  roomsCollectionRef.where("shortRtdbId", "==", shortRoomId.toString()).get().then((searchResponse) => {
+    if (!searchResponse.empty) {
+      res.json({
+        roomLongId: searchResponse.docs[0].get("longRtdbId"),
       });
     } else {
-      res.status(401).json({
-        message: "El id no existe.",
+      res.status(404).json({
+        message: "no existe un room con ese id",
       });
     }
-  });
-});
+})
+})
 
 
 
