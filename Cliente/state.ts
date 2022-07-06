@@ -42,17 +42,11 @@ const state = {
   },
   listeners: [],
 
-  // getStorage() {
-  //   const local = JSON.parse(localStorage.getItem("data"));
-  //   if (localStorage.getItem("data")) {
-  //     return (this.data.history = local);
-  //   }
-  // },
-
+//Return this.data
   getState() {
     return this.data;
   },
-
+//Set all state
   setState(newState) {
     this.data = newState;
     for (const cb of this.listeners) {
@@ -60,32 +54,26 @@ const state = {
     }
     // this.savedData();
   },
-
-  // savedData() {
-  //   const currentHistory = this.getState().history;
-  //   localStorage.setItem("data", JSON.stringify(currentHistory));
-  // },
-
+//Set email and name at state
   setEmailAndName(email: string, name: string) {
     const currentState = this.getState();
     currentState.currentGame.userEmail = email;
     currentState.currentGame.name = name;
     this.setState(currentState);
-  },
-  
-
+  }, 
+//Set user firestoreID
   setFirestoreId(id) {
     const currentState = this.getState();
     currentState.currentGame.firestoreId = id;
     this.setState(currentState);
   },
-
+//Set user  short RealTimeDataBaseID
   setRtdbId(rtdbId) {
     const currentState = this.getState();
     currentState.currentGame.rtdbId = rtdbId;
     this.setState(currentState);
   },
-
+//Authenticate user. If exists returns id
   authentication(): Promise<any> {
     const cs = this.getState();
     if (cs.currentGame.userEmail) {
@@ -101,7 +89,7 @@ const state = {
       console.error("No existe el email");
     }
   },
-
+//Create a new user at Firestore
   createUserAtFirestore() {
     const cs = this.getState();
     const userName = cs.currentGame.name;
@@ -119,7 +107,7 @@ const state = {
       }),
     })
   },
-
+// Create a room if the user exists
   createRoom(): Promise <any> {
     const cs = state.getState();
     if (cs.currentGame.firestoreId) {
@@ -138,7 +126,7 @@ const state = {
       console.error("El id ingresado no existe");
     }
   },
-
+//Create roomCollection at Firestore
   createRoomAtFirestore(){
     const cs = this.getState();
     if (cs.currentGame.rtdbId && cs.currentGame.longrtdbId) {
@@ -157,7 +145,7 @@ const state = {
       console.log("Faltan los Id's")
     }
   },
-
+//Conect to a room
   conectToRoom() {
     const cs = this.getState()
     if (cs.currentGame.longrtdbId){
@@ -179,7 +167,7 @@ const state = {
   checkOnline(){
 
   },
-
+//Verify shortID and return longID
   authenticateRoom(shortID: string){
     const cs = this.getState()
     return fetch (API_BASE_URL + "/auth_room",{
@@ -227,7 +215,7 @@ const state = {
       });
     }
   },
-
+//Determinates who wins
   whoWins(player1: Play, player2: Play) {
     const tieS: boolean = player1 == "scissors" && player2 == "scissors";
     const tieR: boolean = player1 == "rock" && player2 == "rock";

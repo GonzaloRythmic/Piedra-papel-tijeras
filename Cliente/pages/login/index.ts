@@ -41,7 +41,7 @@ class Login extends HTMLElement {
               cs.currentGame.rtdbId = data.shortRoomId
               cs.currentGame.longrtdbId = data.longRoomId
               state.setState(cs);
-              //Create room at Firestore
+              //Create roomCollection at Firestore
               state.createRoomAtFirestore().then((res)=>{
                 return res.json()
               }).then(()=>{
