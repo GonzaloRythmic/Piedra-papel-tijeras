@@ -5,16 +5,19 @@ import { state } from "../../state";
   class IdCodePage extends HTMLElement { 
     connectedCallback() {
       const cs = state.getState()
-      const longRtdbId = cs.currentGame.game_1_longrtdbId
       this.render();
-      state.conectToRoom(longRtdbId);
+      state.conectToRoom().then((res)=>{
+        return res.json()
+      }).then((data)=>{
+        console.log(data)
+      })
 
     }
 
   render(){
     const cs = state.getState();
-    const namePlayer1 = cs.currentGame.gamer_1_name;
-    const idCode = cs.currentGame.gamer_1_rtdbId;
+    const namePlayer1 = cs.currentGame.name;
+    const idCode = cs.currentGame.rtdbId;
 
 
     const rock = require("url:../../images/piedra. jpg")

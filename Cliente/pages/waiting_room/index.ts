@@ -1,10 +1,17 @@
 import {Router} from '@vaadin/router';
+import { state } from '../../state';
 
 
 
 class WaitingRoomPage extends HTMLElement {
   connectedCallback(){
     this.render();
+    state.conectToRoom().then((res)=>{
+      return res.json()
+    }).then((data)=>{
+      console.log("data",data)
+    })
+    // state.conectToRoom()
   }
   render(){
     const rock = require("url:../../images/piedra. jpg")

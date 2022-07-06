@@ -31,15 +31,15 @@ class Login extends HTMLElement {
             return res.json();
           }).then((data) => {
             const cs = state.getState();
-            cs.currentGame.gamer_1_firestoreId = data.id;
+            cs.currentGame.firestoreId = data.id;
             state.setState(cs);
 
             //Create room at Real Time Data Base
             state.createRoom().then((res) => {
               return res.json();
             }).then((data) => {
-              cs.currentGame.gamer_1_rtdbId = data.shortRoomId
-              cs.currentGame.game_1_longrtdbId = data.longRoomId
+              cs.currentGame.rtdbId = data.shortRoomId
+              cs.currentGame.longrtdbId = data.longRoomId
               state.setState(cs);
               //Create room at Firestore
               state.createRoomAtFirestore().then((res)=>{

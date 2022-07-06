@@ -58,7 +58,7 @@ app.post("/room", function (req, res) {
                 owner: userId,
                 shortRoomId: shortRoomId_1,
                 longRoomId: longRoomId_1,
-                online: true
+                onlineOwner: true
             }).then(function () {
                 return res.json({
                     shortRoomId: shortRoomId_1,
@@ -109,7 +109,7 @@ app.post("/enter_room", function (req, res) {
     var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
     chatRoomRef.on('value', function (snapshot) {
         console.log("Esto es lo que hay en rtdb", snapshot.val());
-        res.json({ message: snapshot.val() });
+        res.json(snapshot.val());
     }, function (errorObject) {
         console.log('The read failed: ' + errorObject.name);
     });

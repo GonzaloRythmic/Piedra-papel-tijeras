@@ -9,7 +9,8 @@ class LoginId extends HTMLElement {
       const inputID = document.getElementById("input-id") as any
       const gamer_1_name = document.getElementById("input-name") as any; 
       const email = document.getElementById("input-email") as any;
-
+      
+      //inputs
       const inputIDValue = inputID.value
       const userName = gamer_1_name.value
       const userEmail = email.value
@@ -19,10 +20,10 @@ class LoginId extends HTMLElement {
         alert("Debes ingresar un nombre y un email.");
         Router.go("/login");
       } else {
-       
+        const cs = state.getState()
         //Set name and email at State
         state.setEmailAndName(userEmail, userName);
-        
+        cs.currentGame.rtdbId = inputIDValue
         // Create user at Firestore
         state.createUserAtFirestore().then((res)=>{
           return res.json();
@@ -31,22 +32,14 @@ class LoginId extends HTMLElement {
           state.authentication().then((res) => {
             return res.json();
           }).then((data) => {
-            const cs = state.getState();
-            cs.currentGame.gamer_1_firestoreId = data.id;
+            cs.currentGame.firestoreId = data.id;
             //Authenticate room return longRtdbId
             state.authenticateRoom(inputIDValue.toString()).then((res)=>{
               return res.json()
             }).then((data)=>{
-              cs.currentGame.gamer_2_longrtdbId = data.roomLongId
+              cs.currentGame.longrtdbId = data.roomLongId
               state.setState(cs);
-              console.log("El dato esta en el state", cs.currentGame.game_1_longrtdbId)
-              console.log("El dato que llega por promesa", data.roomLongId)
-              state.conectToRoom(data.roomLongId.toString()).then((res)=>{
-                return res.json()
-              }).then((data)=>{
-                console.log(data);
-                // Router.go("/waiting-room")              
-              })
+              Router.go("/waiting-room")              
             })
           });;
         })

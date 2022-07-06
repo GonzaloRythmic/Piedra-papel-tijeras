@@ -25,18 +25,14 @@ type Play = "paper" | "rock" | "scissors";
 const state = {
   data: {
     currentGame: {
+      onlineOwer: false,
       online: false, 
       userEmail: "",
-      gamer_1_name: "",
-      gamer_1_rtdbId: "",
-      game_1_longrtdbId: "",
-      gamer_1_firestoreId: "",
-      player1_move: "",
-      gamer_2_name: "",
-      gamer_2_rtdbi:"",
-      gamer_2_longrtdbId:"",
-      gamer_2_firestoreId:"",
-      Player_2_move:"",
+      name: "",
+      rtdbId: "",
+      longrtdbId: "",
+      firestoreId: "",
+      move:[{}],
       rtdbData: {}
     },
     history: {
@@ -73,19 +69,20 @@ const state = {
   setEmailAndName(email: string, name: string) {
     const currentState = this.getState();
     currentState.currentGame.userEmail = email;
-    currentState.currentGame.gamer_1_name = name;
+    currentState.currentGame.name = name;
     this.setState(currentState);
   },
+  
 
   setFirestoreId(id) {
     const currentState = this.getState();
-    currentState.currentGame.gamer_1_firestoreId = id;
+    currentState.currentGame.firestoreId = id;
     this.setState(currentState);
   },
 
   setRtdbId(rtdbId) {
     const currentState = this.getState();
-    currentState.currentGame.gamer_1_rtdbId = rtdbId;
+    currentState.currentGame.rtdbId = rtdbId;
     this.setState(currentState);
   },
 
@@ -107,7 +104,7 @@ const state = {
 
   createUserAtFirestore() {
     const cs = this.getState();
-    const userName = cs.currentGame.gamer_1_name;
+    const userName = cs.currentGame.name;
     const userEmail = cs.currentGame.userEmail;  
     return fetch(API_BASE_URL + "/signup", {
       method: "POST",
@@ -125,7 +122,7 @@ const state = {
 
   createRoom(): Promise <any> {
     const cs = state.getState();
-    if (cs.currentGame.gamer_1_firestoreId) {
+    if (cs.currentGame.firestoreId) {
       return fetch(API_BASE_URL + "/room", {
         method: "POST",
         mode: "cors",
@@ -133,7 +130,7 @@ const state = {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: cs.currentGame.game_1_longrtdbId,
+          userId: cs.currentGame.firestoreId
         }),
       })
         
@@ -144,7 +141,7 @@ const state = {
 
   createRoomAtFirestore(){
     const cs = this.getState();
-    if (cs.currentGame.gamer_1_rtdbId && cs.currentGame.game_1_longrtdbId) {
+    if (cs.currentGame.rtdbId && cs.currentGame.longrtdbId) {
       return fetch(API_BASE_URL + "/create_room_firestore", {
         method: "POST",
         mode: "cors",
@@ -152,8 +149,8 @@ const state = {
           "Content-type": "application/json",
         },
         body: JSON.stringify({
-          shortRtdbId: cs.currentGame.gamer_1_rtdbId,
-          longRtdbId: cs.currentGame.game_1_longrtdbId
+          shortRtdbId: cs.currentGame.rtdbId,
+          longRtdbId: cs.currentGame.longrtdbId
         })
       })
     } else {
@@ -161,17 +158,22 @@ const state = {
     }
   },
 
-  conectToRoom(longRtdbId: string) {
-    return fetch (API_BASE_URL + '/enter_room', {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-type": "application/json",
-      },
-      body: JSON.stringify({
-       longRtdbId: longRtdbId,
+  conectToRoom() {
+    const cs = this.getState()
+    if (cs.currentGame.longrtdbId){
+      return fetch (API_BASE_URL + '/enter_room', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          longRtdbtID: cs.currentGame.longrtdbId,
+        })
       })
-    })
+    } else {
+      console.log("id no encontrado")
+    }
   },
 
   checkOnline(){
@@ -191,23 +193,7 @@ const state = {
         })
       })
   },
-
-  // enterToRoom(): Promise<any> {
-  //   const cs = this.getState();
-  //   const userId = cs.currentGame.g 
-  //   return fetch(API_BASE_URL + "/room/:roomId", {
-  //     method: "POST",
-  //     mode: "cors",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({
-  //       userId: userId,
-  //       rtdbId: rtdbId,
-  //     }),
-  //   });
-  // },
-
+ 
   suscribe(callback: (any) => any) {
     this.listeners.push(callback);
   },
