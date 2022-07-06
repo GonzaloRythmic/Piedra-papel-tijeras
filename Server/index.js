@@ -11,6 +11,7 @@ app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 app.use(express.static("dist"));
 var port = process.env.PORT || 3001;
+//Collections refs
 var userCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Users");
 var roomsCollectionRef = databaseAdmin_1.firestoreAdmin.collection("Rooms");
 //Create a new user at Firestore

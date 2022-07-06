@@ -18,6 +18,7 @@ app.use(express.static("dist"))
 
 const port = process.env.PORT || 3001;
 
+//Collections refs
 const userCollectionRef = firestoreAdmin.collection("Users");
 const roomsCollectionRef = firestoreAdmin.collection("Rooms");
 
@@ -116,7 +117,6 @@ app.post("/auth_room", (req, res) => {
     }
   });
 });
-
 
 // Conect user to a Real Time Data Base room
 app.post("/enter_room",  (req, res) => {

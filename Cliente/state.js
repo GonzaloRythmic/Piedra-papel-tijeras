@@ -49,15 +49,11 @@ var state = {
         }
     },
     listeners: [],
-    // getStorage() {
-    //   const local = JSON.parse(localStorage.getItem("data"));
-    //   if (localStorage.getItem("data")) {
-    //     return (this.data.history = local);
-    //   }
-    // },
+    //Return this.data
     getState: function () {
         return this.data;
     },
+    //Set all state
     setState: function (newState) {
         this.data = newState;
         for (var _i = 0, _a = this.listeners; _i < _a.length; _i++) {
@@ -66,26 +62,26 @@ var state = {
         }
         // this.savedData();
     },
-    // savedData() {
-    //   const currentHistory = this.getState().history;
-    //   localStorage.setItem("data", JSON.stringify(currentHistory));
-    // },
+    //Set email and name at state
     setEmailAndName: function (email, name) {
         var currentState = this.getState();
         currentState.currentGame.userEmail = email;
         currentState.currentGame.name = name;
         this.setState(currentState);
     },
+    //Set user firestoreID
     setFirestoreId: function (id) {
         var currentState = this.getState();
         currentState.currentGame.firestoreId = id;
         this.setState(currentState);
     },
+    //Set user  short RealTimeDataBaseID
     setRtdbId: function (rtdbId) {
         var currentState = this.getState();
         currentState.currentGame.rtdbId = rtdbId;
         this.setState(currentState);
     },
+    //Authenticate user. If exists returns id
     authentication: function () {
         var cs = this.getState();
         if (cs.currentGame.userEmail) {
@@ -101,6 +97,7 @@ var state = {
             console.error("No existe el email");
         }
     },
+    //Create a new user at Firestore
     createUserAtFirestore: function () {
         var cs = this.getState();
         var userName = cs.currentGame.name;
@@ -118,6 +115,7 @@ var state = {
             })
         });
     },
+    // Create a room if the user exists
     createRoom: function () {
         var cs = state.getState();
         if (cs.currentGame.firestoreId) {
@@ -136,6 +134,7 @@ var state = {
             console.error("El id ingresado no existe");
         }
     },
+    //Create roomCollection at Firestore
     createRoomAtFirestore: function () {
         var cs = this.getState();
         if (cs.currentGame.rtdbId && cs.currentGame.longrtdbId) {
@@ -155,6 +154,7 @@ var state = {
             console.log("Faltan los Id's");
         }
     },
+    //Conect to a room
     conectToRoom: function () {
         var cs = this.getState();
         if (cs.currentGame.longrtdbId) {
@@ -175,6 +175,7 @@ var state = {
     },
     checkOnline: function () {
     },
+    //Verify shortID and return longID
     authenticateRoom: function (shortID) {
         var cs = this.getState();
         return fetch(API_BASE_URL + "/auth_room", {
@@ -212,6 +213,7 @@ var state = {
                 } }));
         }
     },
+    //Determinates who wins
     whoWins: function (player1, player2) {
         var tieS = player1 == "scissors" && player2 == "scissors";
         var tieR = player1 == "rock" && player2 == "rock";
