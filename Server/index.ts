@@ -40,7 +40,6 @@ app.post("/signup", (req, res) => {
     });
   })
 });
- 
 
 //Authenticate user. If exists returns id
 app.post("/auth", (req, res) => {
@@ -59,7 +58,7 @@ app.post("/auth", (req, res) => {
   });
 });
     
-// Create a room if the user exists
+// Create a room at Real Time Data Base if the user exists
 app.post("/room", (req, res) => {
   const { userId } = req.body;
   userCollectionRef.doc(userId).get().then((doc) => {
@@ -72,7 +71,8 @@ app.post("/room", (req, res) => {
         owner: userId,
         shortRoomId : shortRoomId,
         longRoomId : longRoomId,
-        onlineOwner: true 
+        onlineOwner: true,
+        onlineGuest: false 
         }).then(() =>{
           return res.json({
           shortRoomId: shortRoomId,
@@ -118,10 +118,13 @@ app.post("/auth_room", (req, res) => {
   });
 });
 
-// Conect user to a Real Time Data Base room
+// Conect user to a Real Time Data Base room and change inviteGuest flag
 app.post("/enter_room",  (req, res) => {
   const {longRtdbtID} = req.body;
   const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
+  chatRoomRef.update({
+    onlineGuest: true
+  })
   chatRoomRef.on('value', (snapshot) => {
     console.log("Esto es lo que hay en rtdb", snapshot.val());
     res.json( snapshot.val())
@@ -130,23 +133,17 @@ app.post("/enter_room",  (req, res) => {
   }); 
 });
 
-app.get('/online', (req, res) => {
-  const {online} = req.body
-  const {shortRoomId} = req.body
-  roomsCollectionRef.where("shortRtdbId", "==", shortRoomId.toString()).get().then((searchResponse) => {
-    if (!searchResponse.empty) {
-      res.json({
-        roomLongId: searchResponse.docs[0].get("longRtdbId"),
-      });
-    } else {
-      res.status(404).json({
-        message: "no existe un room con ese id",
-      });
-    }
+//Listen to a room at Real Time Data Base
+app.post('/listen_room', (req, res)=> {
+  const {longRtdbtID} = req.body;
+  const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
+  chatRoomRef.on('value', (snapshot) => {
+    console.log("Esto es lo que hay en rtdb", snapshot.val());
+    res.json( snapshot.val())
+  }, (errorObject) => {
+    console.log('The read failed: ' + errorObject.name);
+  }); 
 })
-})
-
-
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

@@ -189,6 +189,15 @@ var state = {
             })
         });
     },
+    prueba: function () {
+        return fetch(API_BASE_URL + "/prueba", {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-type": "application/json"
+            }
+        });
+    },
     suscribe: function (callback) {
         this.listeners.push(callback);
     },

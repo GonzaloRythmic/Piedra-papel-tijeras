@@ -6,12 +6,13 @@ import { state } from '../../state';
 class WaitingRoomPage extends HTMLElement {
   connectedCallback(){
     this.render();
+     
+    //Al invocarse ConectToRoom() se cambia la propiedad "onlineGuest" de false a true.
     state.conectToRoom().then((res)=>{
       return res.json()
     }).then((data)=>{
       console.log("data",data)
     })
-    // state.conectToRoom()
   }
   render(){
     const rock = require("url:../../images/piedra. jpg")

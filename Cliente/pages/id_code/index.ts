@@ -6,10 +6,17 @@ import { state } from "../../state";
     connectedCallback() {
       const cs = state.getState()
       this.render();
-      state.conectToRoom().then((res)=>{
+      //A partir de esta linea deberia estar escuchando los cambios 
+      state.listenToRoom().then((res)=>{
         return res.json()
       }).then((data)=>{
         console.log(data)
+        //A partir de acá deberia escuchar el primer cambio. Se encuentra esperando que un usuario nuevo ingrese a la sala.
+        //Cuando lo haga, automaticamente cambia el flag "onlineGuest" a true, y al detectar ese cambio
+        //debería pasar a otra pantalla. 
+        if (data.onlineGuest == true) {
+          Router.go('/instructions')
+        }
       })
 
     }
@@ -42,6 +49,10 @@ import { state } from "../../state";
       <div class="id-code">
         <div>${idCode}</div>
       </div>
+
+      <button class="boton">
+        boton
+      </button>
 
       <div class ="idcode-container"></div>
       

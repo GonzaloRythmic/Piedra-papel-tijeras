@@ -108,7 +108,7 @@ const state = {
     })
   },
 // Create a room if the user exists
-  createRoom(): Promise <any> {
+  createRoom(){
     const cs = state.getState();
     if (cs.currentGame.firestoreId) {
       return fetch(API_BASE_URL + "/room", {
@@ -164,9 +164,6 @@ const state = {
     }
   },
 
-  checkOnline(){
-
-  },
 //Verify shortID and return longID
   authenticateRoom(shortID: string){
     const cs = this.getState()
@@ -182,11 +179,30 @@ const state = {
       })
   },
  
+//Listen to a room at Real Time Data Base
+  listenToRoom() {
+    const cs = this.getState()
+    if (cs.currentGame.longrtdbId){
+      return fetch (API_BASE_URL + '/listen_room', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          longRtdbtID: cs.currentGame.longrtdbId,
+        })
+      })
+    } else {
+      console.log("id no encontrado")
+    }
+  },
+
   suscribe(callback: (any) => any) {
     this.listeners.push(callback);
   },
 
-  //SAVE THE SCORE AND SUMMON SAVE DATA
+  //Save score
   setScore() {
     const currentState = this.getState();
 

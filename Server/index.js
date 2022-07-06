@@ -3,6 +3,7 @@ exports.__esModule = true;
 var express = require("express");
 var state_1 = require("../Cliente/state");
 var databaseAdmin_1 = require("./databaseAdmin");
+var database_1 = require("firebase/database");
 var cors = require("cors");
 var uuid_1 = require("uuid");
 var app = express(); //Inicializamos express en alguna variable
@@ -129,6 +130,12 @@ app.get('/online', function (req, res) {
                 message: "no existe un room con ese id"
             });
         }
+    });
+});
+app.get('/prueba', function (req, res) {
+    (0, database_1.set)((0, database_1.ref)(databaseAdmin_1.rtdbAdmin, 'Rooms/04d7cddf-5716-473b-a190-716c9a0d0572'), {
+        username: 'prueba',
+        email: 'prueba'
     });
 });
 app.listen(port, function () {
