@@ -3,7 +3,6 @@ exports.__esModule = true;
 var express = require("express");
 var state_1 = require("../Cliente/state");
 var databaseAdmin_1 = require("./databaseAdmin");
-var database_1 = require("firebase/database");
 var cors = require("cors");
 var uuid_1 = require("uuid");
 var app = express(); //Inicializamos express en alguna variable
@@ -47,7 +46,7 @@ app.post("/auth", function (req, res) {
         }
     });
 });
-// Create a room if the user exists
+// Create a room at Real Time Data Base if the user exists
 app.post("/room", function (req, res) {
     var userId = req.body.userId;
     userCollectionRef.doc(userId).get().then(function (doc) {
@@ -60,7 +59,8 @@ app.post("/room", function (req, res) {
                 owner: userId,
                 shortRoomId: shortRoomId_1,
                 longRoomId: longRoomId_1,
-                onlineOwner: true
+                onlineOwner: true,
+                onlineGuest: false
             }).then(function () {
                 return res.json({
                     shortRoomId: shortRoomId_1,
@@ -105,8 +105,18 @@ app.post("/auth_room", function (req, res) {
         }
     });
 });
-// Conect user to a Real Time Data Base room
+// Conect user to a Real Time Data Base room and change inviteGuest flag
 app.post("/enter_room", function (req, res) {
+    var longRtdbtID = req.body.longRtdbtID;
+    var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
+    chatRoomRef.on('value', function (snapshot) {
+        console.log("Esto es lo que hay en rtdb", snapshot.val());
+    }, function (errorObject) {
+        console.log('The read failed: ' + errorObject.name);
+    });
+});
+//Listen to a room at Real Time Data Base
+app.post('/listen_room', function (req, res) {
     var longRtdbtID = req.body.longRtdbtID;
     var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
     chatRoomRef.on('value', function (snapshot) {
@@ -116,26 +126,13 @@ app.post("/enter_room", function (req, res) {
         console.log('The read failed: ' + errorObject.name);
     });
 });
-app.get('/online', function (req, res) {
-    var online = req.body.online;
-    var shortRoomId = req.body.shortRoomId;
-    roomsCollectionRef.where("shortRtdbId", "==", shortRoomId.toString()).get().then(function (searchResponse) {
-        if (!searchResponse.empty) {
-            res.json({
-                roomLongId: searchResponse.docs[0].get("longRtdbId")
-            });
-        }
-        else {
-            res.status(404).json({
-                message: "no existe un room con ese id"
-            });
-        }
-    });
-});
-app.get('/prueba', function (req, res) {
-    (0, database_1.set)((0, database_1.ref)(databaseAdmin_1.rtdbAdmin, 'Rooms/04d7cddf-5716-473b-a190-716c9a0d0572'), {
-        username: 'prueba',
-        email: 'prueba'
+app.get('/change_status', function (req, res) {
+    var longRtdbtID = req.body.longRtdbtID;
+    var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
+    chatRoomRef.update({
+        owner: true
+    }, function () {
+        console.log("Todo salio ok");
     });
 });
 app.listen(port, function () {

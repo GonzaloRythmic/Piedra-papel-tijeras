@@ -7,11 +7,13 @@ class WaitingRoomPage extends HTMLElement {
   connectedCallback(){
     this.render();
      
+    const cs = state.getState()
     //Al invocarse ConectToRoom() se cambia la propiedad "onlineGuest" de false a true.
-    state.conectToRoom().then((res)=>{
+    state.enterToRoom().then((res)=>{
       return res.json()
     }).then((data)=>{
-      console.log("data",data)
+      cs.currentGame.rtdbData = data
+      console.log("esto es lo que hay en el state",cs.currentGame.rtdbData)
     })
   }
   render(){

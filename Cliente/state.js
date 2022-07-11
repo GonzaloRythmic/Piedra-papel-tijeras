@@ -158,7 +158,7 @@ var state = {
     conectToRoom: function () {
         var cs = this.getState();
         if (cs.currentGame.longrtdbId) {
-            return fetch(API_BASE_URL + '/enter_room', {
+            return fetch(API_BASE_URL + '/listen_room', {
                 method: "POST",
                 mode: "cors",
                 headers: {
@@ -173,7 +173,14 @@ var state = {
             console.log("id no encontrado");
         }
     },
-    checkOnline: function () {
+    changeOnlineStatus: function () {
+        return fetch(API_BASE_URL + '/change_status', {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-type": "application/json"
+            }
+        });
     },
     //Verify shortID and return longID
     authenticateRoom: function (shortID) {
@@ -189,19 +196,29 @@ var state = {
             })
         });
     },
-    prueba: function () {
-        return fetch(API_BASE_URL + "/prueba", {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                "Content-type": "application/json"
-            }
-        });
+    //Listen to a room at Real Time Data Base
+    listenToRoom: function () {
+        var cs = this.getState();
+        if (cs.currentGame.longrtdbId) {
+            return fetch(API_BASE_URL + '/listen_room', {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    longRtdbtID: cs.currentGame.longrtdbId
+                })
+            });
+        }
+        else {
+            console.log("id no encontrado");
+        }
     },
     suscribe: function (callback) {
         this.listeners.push(callback);
     },
-    //SAVE THE SCORE AND SUMMON SAVE DATA
+    //Save score
     setScore: function () {
         var currentState = this.getState();
         var player1 = this.getState().currentGame.player1;

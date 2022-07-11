@@ -74,7 +74,7 @@ const state = {
     this.setState(currentState);
   },
 //Authenticate user. If exists returns id
-  authentication(): Promise<any> {
+  authentication() {
     const cs = this.getState();
     if (cs.currentGame.userEmail) {
       return fetch(API_BASE_URL + "/auth", {
@@ -108,7 +108,7 @@ const state = {
     })
   },
 // Create a room if the user exists
-  createRoom(){
+  createRoom() {
     const cs = state.getState();
     if (cs.currentGame.firestoreId) {
       return fetch(API_BASE_URL + "/room", {
@@ -145,11 +145,11 @@ const state = {
       console.log("Faltan los Id's")
     }
   },
-//Conect to a room
-  conectToRoom() {
+//Conect to a room and change online status
+  enterToRoom() {
     const cs = this.getState()
     if (cs.currentGame.longrtdbId){
-      return fetch (API_BASE_URL + '/enter_room', {
+      return fetch (API_BASE_URL + '/listen_room', {
         method: "POST",
         mode: "cors",
         headers: {
@@ -163,7 +163,6 @@ const state = {
       console.log("id no encontrado")
     }
   },
-
 //Verify shortID and return longID
   authenticateRoom(shortID: string){
     const cs = this.getState()
@@ -177,8 +176,7 @@ const state = {
           shortRtdbId: shortID,
         })
       })
-  },
- 
+  }, 
 //Listen to a room at Real Time Data Base
   listenToRoom() {
     const cs = this.getState()
@@ -197,7 +195,6 @@ const state = {
       console.log("id no encontrado")
     }
   },
-
   suscribe(callback: (any) => any) {
     this.listeners.push(callback);
   },

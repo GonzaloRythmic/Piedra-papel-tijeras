@@ -10,7 +10,8 @@ import { state } from "../../state";
       state.listenToRoom().then((res)=>{
         return res.json()
       }).then((data)=>{
-        console.log(data)
+        cs.currentGame.rtdbData = data
+        console.log("esto es lo que hay en el state",cs.currentGame.rtdbData)
         //A partir de acá deberia escuchar el primer cambio. Se encuentra esperando que un usuario nuevo ingrese a la sala.
         //Cuando lo haga, automaticamente cambia el flag "onlineGuest" a true, y al detectar ese cambio
         //debería pasar a otra pantalla. 

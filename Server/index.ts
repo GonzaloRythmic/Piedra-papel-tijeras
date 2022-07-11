@@ -122,28 +122,31 @@ app.post("/auth_room", (req, res) => {
 app.post("/enter_room",  (req, res) => {
   const {longRtdbtID} = req.body;
   const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
+  //actualiza el dato.
   chatRoomRef.update({
-    onlineGuest: true
-  })
+    onlineGuest: true // para probar como ejemplo cambiar de false a true o de true a false.
+  })//a partir de aca debería quedarse escuchando los cambios. 
   chatRoomRef.on('value', (snapshot) => {
     console.log("Esto es lo que hay en rtdb", snapshot.val());
-    res.json( snapshot.val())
+    res.json(snapshot.val())
   }, (errorObject) => {
     console.log('The read failed: ' + errorObject.name);
   }); 
 });
 
-//Listen to a room at Real Time Data Base
+//Listen to a room at Real Time Data Base.
 app.post('/listen_room', (req, res)=> {
   const {longRtdbtID} = req.body;
   const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
   chatRoomRef.on('value', (snapshot) => {
     console.log("Esto es lo que hay en rtdb", snapshot.val());
-    res.json( snapshot.val())
+    res.json(snapshot.val())
   }, (errorObject) => {
     console.log('The read failed: ' + errorObject.name);
+    
   }); 
-})
+});
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
