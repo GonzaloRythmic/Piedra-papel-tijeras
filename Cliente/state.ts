@@ -1,26 +1,11 @@
 import { rtdb, firestore } from "../Server/database";
 import { ref, onValue } from "firebase/database";
+import {Router} from '@vaadin/router';
+
 
 const API_BASE_URL = "http://localhost:3001";
 
 type Play = "paper" | "rock" | "scissors";
-// export type cs = {
-//   currentGame:{
-//     userEmail:string,
-//     gamer_1_name: string,
-//     gamer_1_rtdbId: string,
-//     gamer_1_firestoreId: string,
-//     player1_move:string,
-//     gamer_2_name: string,
-//     player2_move: string,
-//     gamer_2_rtdbId: string,
-//     gamer_2_firestoreId: string,
-//   },
-//   history: {
-//     myScore: number,
-//     computerScore: number,
-//   },
-// }
 
 const state = {
   data: {
@@ -146,10 +131,28 @@ const state = {
     }
   },
 //Conect to a room and change online status
-  enterToRoom() {
+  changeStatus() {
     const cs = this.getState()
     if (cs.currentGame.longrtdbId){
-      return fetch (API_BASE_URL + '/listen_room', {
+      return fetch (API_BASE_URL + '/change_status', {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          longRtdbtID: cs.currentGame.longrtdbId,
+        })
+      })
+    } else {
+      console.log("id no encontrado")
+    }
+  },
+  //Change "start" flag.
+  changeStartStatus() {
+    const cs = this.getState()
+    if (cs.currentGame.longrtdbId){
+      return fetch (API_BASE_URL + '/change_start_status', {
         method: "POST",
         mode: "cors",
         headers: {
@@ -177,20 +180,47 @@ const state = {
         })
       })
   }, 
-//Listen to a room at Real Time Data Base
-  listenToRoom() {
+//Listen to a room at Real Time Data Base waiting.
+  waitingConnection() {
     const cs = this.getState()
     if (cs.currentGame.longrtdbId){
-      return fetch (API_BASE_URL + '/listen_room', {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({
-          longRtdbtID: cs.currentGame.longrtdbId,
-        })
-      })
+      const chatRoomRef = ref(rtdb, 'Rooms/' + cs.currentGame.longrtdbId);
+      onValue(chatRoomRef, (snapshot) => {
+        const data = snapshot.val();
+        cs.currentGame.rtdbData = data
+        this.setState(cs)
+        if (data.onlineGuest == true) {
+          Router.go('/instructions')
+        } else {
+          onValue(chatRoomRef, (snapshot)=>{
+            const data = snapshot.val();
+            cs.currentGame.rtdbData = data
+            this.setState(cs)
+          })
+        }
+      });
+    } else {
+      console.log("id no encontrado")
+    }
+  },
+  waitingForStartChange() {
+    const cs = this.getState()
+    if (cs.currentGame.longrtdbId){
+      const chatRoomRef = ref(rtdb, 'Rooms/' + cs.currentGame.longrtdbId);
+      onValue(chatRoomRef, (snapshot) => {
+        const data = snapshot.val();
+        cs.currentGame.rtdbData = data
+        this.setState(cs)
+        if (data.start == true) {
+          Router.go('/game')
+        } else {
+          onValue(chatRoomRef, (snapshot)=>{
+            const data = snapshot.val();
+            cs.currentGame.rtdbData = data
+            this.setState(cs)
+          })
+        }
+      });
     } else {
       console.log("id no encontrado")
     }

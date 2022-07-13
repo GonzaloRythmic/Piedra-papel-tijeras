@@ -9,11 +9,10 @@ class WaitingRoomPage extends HTMLElement {
      
     const cs = state.getState()
     //Al invocarse ConectToRoom() se cambia la propiedad "onlineGuest" de false a true.
-    state.enterToRoom().then((res)=>{
+    state.changeStatus().then((res)=>{
       return res.json()
     }).then((data)=>{
-      cs.currentGame.rtdbData = data
-      console.log("esto es lo que hay en el state",cs.currentGame.rtdbData)
+      state.waitingForStartChange()
     })
   }
   render(){

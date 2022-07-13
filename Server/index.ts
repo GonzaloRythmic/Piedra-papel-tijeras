@@ -71,8 +71,9 @@ app.post("/room", (req, res) => {
         owner: userId,
         shortRoomId : shortRoomId,
         longRoomId : longRoomId,
-        onlineOwner: true,
-        onlineGuest: false 
+        onlineOwner: false,
+        onlineGuest: false,
+        start: false 
         }).then(() =>{
           return res.json({
           shortRoomId: shortRoomId,
@@ -118,29 +119,38 @@ app.post("/auth_room", (req, res) => {
   });
 });
 
-// Conect user to a Real Time Data Base room and change inviteGuest flag
-app.post("/enter_room",  (req, res) => {
+//Change onlineGuest flag
+app.post("/change_status",  (req, res) => {
   const {longRtdbtID} = req.body;
   const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
   //actualiza el dato.
   chatRoomRef.update({
-    onlineGuest: true // para probar como ejemplo cambiar de false a true o de true a false.
-  })//a partir de aca debería quedarse escuchando los cambios. 
-  chatRoomRef.on('value', (snapshot) => {
-    console.log("Esto es lo que hay en rtdb", snapshot.val());
-    res.json(snapshot.val())
-  }, (errorObject) => {
-    console.log('The read failed: ' + errorObject.name);
-  }); 
+    onlineGuest: true
+  })
+  res.json('Todo okey') //devuelvo solo un mensaje
 });
-
+//Change "start" flag
+app.post('/change_start_status', (req, res)=>{
+  const {longRtdbtID} = req.body;
+  const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
+  //actualiza el dato.
+  chatRoomRef.update({
+    start: true
+  })
+  res.json('Todo okey') //devuelvo solo un mensaje
+})
 //Listen to a room at Real Time Data Base.
 app.post('/listen_room', (req, res)=> {
+  const cs = state.getState()
   const {longRtdbtID} = req.body;
   const chatRoomRef = rtdbAdmin.ref("/Rooms/"+longRtdbtID)
   chatRoomRef.on('value', (snapshot) => {
     console.log("Esto es lo que hay en rtdb", snapshot.val());
-    res.json(snapshot.val())
+    cs.currentGame.rtdbData = snapshot.val()
+    return res.json({
+      message: 'Datos de la rtdb',
+      data: snapshot.val()
+    })
   }, (errorObject) => {
     console.log('The read failed: ' + errorObject.name);
     

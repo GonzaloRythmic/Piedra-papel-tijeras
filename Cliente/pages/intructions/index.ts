@@ -1,11 +1,15 @@
 import {Router} from '@vaadin/router';
+import { state } from '../../state';
 
 
 
 class InstructionsPage extends HTMLElement {
   connectedCallback(){
     this.render();
-    this.querySelector(".home-button").addEventListener("click", () => Router.go('/game'));
+    this.querySelector(".home-button").addEventListener("click", () => {
+      state.changeStartStatus()
+      Router.go('/game')
+    });
   }
   render(){
     const rock = require("url:../../images/piedra. jpg")
@@ -16,8 +20,7 @@ class InstructionsPage extends HTMLElement {
     this.innerHTML = `
       <div class = home-title-container>
         <h2 class = home-title> 
-          Presioná jugar
-          y elegí: piedra, papel o tijera antes de que pasen los 5 segundos.
+          Tu oponente está listo, ¿empezamos?
         </h2>
       </div>
       <div class = button-container>

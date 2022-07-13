@@ -4,7 +4,6 @@ exports.firestore = exports.rtdb = void 0;
 var app_1 = require("firebase/app");
 var database_1 = require("firebase/database");
 var firestore_1 = require("firebase/firestore");
-// TODO: Replace with your app's Firebase project configuration
 var firebaseConfig = {
     apiKey: "dAeSOjpHA1IjnFA18vDwdWOI2o6Rg0dRCcGz1W09",
     authDomain: "piedra-papel-tijeras-app.firebase.app",

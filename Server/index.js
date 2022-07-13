@@ -59,8 +59,9 @@ app.post("/room", function (req, res) {
                 owner: userId,
                 shortRoomId: shortRoomId_1,
                 longRoomId: longRoomId_1,
-                onlineOwner: true,
-                onlineGuest: false
+                onlineOwner: false,
+                onlineGuest: false,
+                start: false
             }).then(function () {
                 return res.json({
                     shortRoomId: shortRoomId_1,
@@ -105,34 +106,40 @@ app.post("/auth_room", function (req, res) {
         }
     });
 });
-// Conect user to a Real Time Data Base room and change inviteGuest flag
-app.post("/enter_room", function (req, res) {
+//Change onlineGuest flag
+app.post("/change_status", function (req, res) {
     var longRtdbtID = req.body.longRtdbtID;
     var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
-    chatRoomRef.on('value', function (snapshot) {
-        console.log("Esto es lo que hay en rtdb", snapshot.val());
-    }, function (errorObject) {
-        console.log('The read failed: ' + errorObject.name);
-    });
-});
-//Listen to a room at Real Time Data Base
-app.post('/listen_room', function (req, res) {
-    var longRtdbtID = req.body.longRtdbtID;
-    var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
-    chatRoomRef.on('value', function (snapshot) {
-        console.log("Esto es lo que hay en rtdb", snapshot.val());
-        res.json(snapshot.val());
-    }, function (errorObject) {
-        console.log('The read failed: ' + errorObject.name);
-    });
-});
-app.get('/change_status', function (req, res) {
-    var longRtdbtID = req.body.longRtdbtID;
-    var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
+    //actualiza el dato.
     chatRoomRef.update({
-        owner: true
-    }, function () {
-        console.log("Todo salio ok");
+        onlineGuest: true
+    });
+    res.json('Todo okey'); //devuelvo solo un mensaje
+});
+//Change "start" flag
+app.post('/change_start_status', function (req, res) {
+    var longRtdbtID = req.body.longRtdbtID;
+    var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
+    //actualiza el dato.
+    chatRoomRef.update({
+        start: true
+    });
+    res.json('Todo okey'); //devuelvo solo un mensaje
+});
+//Listen to a room at Real Time Data Base.
+app.post('/listen_room', function (req, res) {
+    var cs = state_1.state.getState();
+    var longRtdbtID = req.body.longRtdbtID;
+    var chatRoomRef = databaseAdmin_1.rtdbAdmin.ref("/Rooms/" + longRtdbtID);
+    chatRoomRef.on('value', function (snapshot) {
+        console.log("Esto es lo que hay en rtdb", snapshot.val());
+        cs.currentGame.rtdbData = snapshot.val();
+        return res.json({
+            message: 'Datos de la rtdb',
+            data: snapshot.val()
+        });
+    }, function (errorObject) {
+        console.log('The read failed: ' + errorObject.name);
     });
 });
 app.listen(port, function () {

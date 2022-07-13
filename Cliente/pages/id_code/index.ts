@@ -3,23 +3,9 @@ import { Console } from 'console';
 import { state } from "../../state";
 
   class IdCodePage extends HTMLElement { 
-    connectedCallback() {
-      const cs = state.getState()
+      connectedCallback() { 
+      state.waitingConnection()
       this.render();
-      //A partir de esta linea deberia estar escuchando los cambios 
-      state.listenToRoom().then((res)=>{
-        return res.json()
-      }).then((data)=>{
-        cs.currentGame.rtdbData = data
-        console.log("esto es lo que hay en el state",cs.currentGame.rtdbData)
-        //A partir de acá deberia escuchar el primer cambio. Se encuentra esperando que un usuario nuevo ingrese a la sala.
-        //Cuando lo haga, automaticamente cambia el flag "onlineGuest" a true, y al detectar ese cambio
-        //debería pasar a otra pantalla. 
-        if (data.onlineGuest == true) {
-          Router.go('/instructions')
-        }
-      })
-
     }
 
   render(){

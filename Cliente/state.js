@@ -12,24 +12,10 @@ var __assign = (this && this.__assign) || function () {
 };
 exports.__esModule = true;
 exports.state = void 0;
+var database_1 = require("../Server/database");
+var database_2 = require("firebase/database");
+var router_1 = require("@vaadin/router");
 var API_BASE_URL = "http://localhost:3001";
-// export type cs = {
-//   currentGame:{
-//     userEmail:string,
-//     gamer_1_name: string,
-//     gamer_1_rtdbId: string,
-//     gamer_1_firestoreId: string,
-//     player1_move:string,
-//     gamer_2_name: string,
-//     player2_move: string,
-//     gamer_2_rtdbId: string,
-//     gamer_2_firestoreId: string,
-//   },
-//   history: {
-//     myScore: number,
-//     computerScore: number,
-//   },
-// }
 var state = {
     data: {
         currentGame: {
@@ -154,11 +140,11 @@ var state = {
             console.log("Faltan los Id's");
         }
     },
-    //Conect to a room
-    conectToRoom: function () {
+    //Conect to a room and change online status
+    changeStatus: function () {
         var cs = this.getState();
         if (cs.currentGame.longrtdbId) {
-            return fetch(API_BASE_URL + '/listen_room', {
+            return fetch(API_BASE_URL + '/change_status', {
                 method: "POST",
                 mode: "cors",
                 headers: {
@@ -173,14 +159,24 @@ var state = {
             console.log("id no encontrado");
         }
     },
-    changeOnlineStatus: function () {
-        return fetch(API_BASE_URL + '/change_status', {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                "Content-type": "application/json"
-            }
-        });
+    //Change "start" flag.
+    changeStartStatus: function () {
+        var cs = this.getState();
+        if (cs.currentGame.longrtdbId) {
+            return fetch(API_BASE_URL + '/change_start_status', {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify({
+                    longRtdbtID: cs.currentGame.longrtdbId
+                })
+            });
+        }
+        else {
+            console.log("id no encontrado");
+        }
     },
     //Verify shortID and return longID
     authenticateRoom: function (shortID) {
@@ -196,19 +192,51 @@ var state = {
             })
         });
     },
-    //Listen to a room at Real Time Data Base
-    listenToRoom: function () {
+    //Listen to a room at Real Time Data Base waiting.
+    waitingConnection: function () {
+        var _this = this;
         var cs = this.getState();
         if (cs.currentGame.longrtdbId) {
-            return fetch(API_BASE_URL + '/listen_room', {
-                method: "POST",
-                mode: "cors",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    longRtdbtID: cs.currentGame.longrtdbId
-                })
+            var chatRoomRef_1 = (0, database_2.ref)(database_1.rtdb, 'Rooms/' + cs.currentGame.longrtdbId);
+            (0, database_2.onValue)(chatRoomRef_1, function (snapshot) {
+                var data = snapshot.val();
+                cs.currentGame.rtdbData = data;
+                _this.setState(cs);
+                if (data.onlineGuest == true) {
+                    router_1.Router.go('/instructions');
+                }
+                else {
+                    (0, database_2.onValue)(chatRoomRef_1, function (snapshot) {
+                        var data = snapshot.val();
+                        cs.currentGame.rtdbData = data;
+                        _this.setState(cs);
+                    });
+                }
+            });
+        }
+        else {
+            console.log("id no encontrado");
+        }
+    },
+    waitingForStartChange: function () {
+        var _this = this;
+        var cs = this.getState();
+        if (cs.currentGame.longrtdbId) {
+            var chatRoomRef_2 = (0, database_2.ref)(database_1.rtdb, 'Rooms/' + cs.currentGame.longrtdbId);
+            (0, database_2.onValue)(chatRoomRef_2, function (snapshot) {
+                var data = snapshot.val();
+                cs.currentGame.rtdbData = data;
+                _this.setState(cs);
+                if (data.start == true) {
+                    router_1.Router.go('/game');
+                }
+                else {
+                    (0, database_2.onValue)(chatRoomRef_2, function (snapshot) {
+                        var data = snapshot.val();
+                        cs.currentGame.rtdbData = data;
+                        _this.setState(cs);
+                    });
+                }
             });
         }
         else {
